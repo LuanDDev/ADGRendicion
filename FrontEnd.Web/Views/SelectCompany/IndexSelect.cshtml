@@ -1,0 +1,20 @@
+﻿
+@{
+    ViewData["Title"] = "Selecciona Empresa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="botonera" style="display: flex;justify-content: center;align-items: center;flex-wrap: wrap;flex-direction: row;align-content: center;">
+</div>
+
+@section Scripts
+{
+
+    <script>
+        var URL_CERRARSESION = "@Url.Content("~/")" + "Login/CerrarSesion";
+        var URL_AUTENTICACION = "@Url.Content("~/")" + "Login/Index";
+        var url_getCompaniesSesion = "@Url.Content("~/")" + "SelectCompany/GetCompaniesSession";
+    </script>
+
+    <script src="@Url.Content("~/scripts/SelectCompany.js")"></script>
+}

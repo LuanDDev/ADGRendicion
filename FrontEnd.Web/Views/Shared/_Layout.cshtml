@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title</title>
+    <link rel="icon" href="~/Assets/img/logo/logo2.png" type="image/png" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+
+    <!-- ================== BEGIN core-css ================== -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="~/assets/css/vendor.min.css" rel="stylesheet" />
+    <link href="~/assets/css/default/app.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <link href="~/assets/plugins/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" rel="stylesheet" />
+    <link href="~/assets/plugins/ionicons/css/ionicons.min.css" rel="stylesheet" />
+
+    <link href="~/assets/plugins/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/datatables.net-colreorder-bs5/css/colReorder.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/datatables.net-keytable-bs5/css/keyTable.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/datatables.net-rowreorder-bs5/css/rowReorder.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/datatables.net-select-bs5/css/select.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/select2/dist/css/select2.css" rel="stylesheet" />
+    <link href="~/css/boton-flotante.css" rel="stylesheet" />
+    <link href="~/css/custom_styles.css" rel="stylesheet" />
+    @*<link href="https://cdn.datatables.net/scroller/2.0.7/css/scroller.dataTables.min.css" rel="stylesheet" />*@
+
+    <link href="~/css/spinner.css" rel="stylesheet" />
+
+    <link href="https://fonts.googleapis.com/css?family=Libre Barcode 39" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Libre Barcode 128' rel='stylesheet'>
+
+    @RenderSection("Styles", false)
+    <!-- ================== END core-css ================== -->
+    <script>
+        var URL_CERRARSESION = "@Url.Content("~/")" + "Login/CerrarSesion";
+        var URL_AUTENTICACION = "@Url.Content("~/")" + "Login/Login";
+        var url_getCompaniesSesion = "@Url.Content("~/")" + "SelectCompany/GetCompaniesSession";
+
+        var url_selectCompany = "@Url.Content("~/")" + "SelectCompany/IndexSelect";
+
+        var url_home = "@Url.Content("~/")" + "Home/Index";
+        var url_UserView = "@Url.Content("~/")" + "User/UserView";
+        var url_updatePasswordUser = "@Url.Content("~/")" + "User/updatePasswordUser";
+        var url_getMenuForProfile = "@Url.Content("~/")" + "User/getMenuForProfile";
+
+    </script>
+    <style>
+    </style>
+</head>
+<body>
+    <!-- BEGIN #loader -->
+    <div id="loader" class="app-loader">
+        <span class="spinner"></span>
+    </div>
+    <!-- END #loader -->
+    <!-- BEGIN #app -->
+    <div id="app" class="app app-header-fixed app-sidebar-fixed">
+        <!-- BEGIN #header -->
+        <div id="header" class="app-header">
+            <!-- BEGIN navbar-header -->
+            <div class="navbar-header">
+                <a href="index.html" class="navbar-brand"><img src="~/assets/img/logo/logo2.png" /><b>&nbsp;ADG</b> Integrado</a>
+                <button type="button" class="navbar-mobile-toggler" data-toggle="app-sidebar-mobile">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <!-- END navbar-header -->
+            <!-- BEGIN header-nav -->
+            <div class="navbar-nav">
+                <div class="navbar-item navbar-form">
+                    @*<form action="" method="POST" name="search">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Buscar" />
+                                <button type="submit" class="btn btn-search"><i class="fa fa-search"></i></button>
+                            </div>
+                        </form>*@
+                </div>
+                <div class="navbar-item dropdown">
+                    @*<a href="#" data-bs-toggle="dropdown" class="navbar-link dropdown-toggle fs-14px">
+                            <i class="fa fa-bell"></i>
+                            <span class="badge">0</span>
+                        </a>
+                        <div class="dropdown-menu media-list dropdown-menu-end">
+                            <div class="dropdown-header">NOTIFICATIONS (0)</div>
+                            <div class="text-center w-300px py-3">
+                                No notification found
+                            </div>
+                        </div>*@
+                </div>
+                <div class="navbar-item navbar-user dropdown">
+                    <a href="#" class="navbar-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                        <div class="image image-icon bg-gray-800 text-gray-600">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <span class="d-none d-md-inline"></span> <b class="caret ms-10px"></b>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end me-1">
+                        <a href="javascript:;" class="dropdown-item cambiarContraseña">Cambiar Contraseña</a>
+                        @*<a href="javascript:;" class="dropdown-item d-flex align-items-center">
+                                Inbox
+                                <span class="badge bg-danger rounded-pill ms-auto pb-4px">2</span>
+                            </a>
+                            <a href="javascript:;" class="dropdown-item">Calendar</a>
+                            <a href="javascript:;" class="dropdown-item">Setting</a>*@
+                        <div class="dropdown-divider"></div>
+                        <a id="buttonCerrarSesion" href="" class="dropdown-item">Cerrar Sesión</a>
+                    </div>
+                </div>
+            </div>
+            <!-- END header-nav -->
+        </div>
+        <!-- END #header -->
+        <!-- BEGIN #sidebar -->
+        <div id="sidebar" class="app-sidebar">
+            <!-- BEGIN scrollbar -->
+            <div class="app-sidebar-content" data-scrollbar="true" data-height="100%">
+                <!-- BEGIN menu -->
+                <div class="menu">
+                    <div class="menu-profile">
+                        <a href="javascript:;" class="menu-profile-link" data-toggle="app-sidebar-profile" data-target="#appSidebarProfileMenu">
+                            <div class="menu-profile-cover with-shadow"></div>
+                            <div class="menu-profile-image menu-profile-image-icon bg-gray-900 text-gray-600">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <div class="menu-profile-info">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <small id="lblCompanyLayout"></small>
+                                        <input id="txtCodUsuario" type="hidden" name="name" value="@ViewBag.UsuarioLogueado.userId" />
+                                        <br />
+                                        @ViewBag.UsuarioLogueado.userName @ViewBag.UsuarioLogueado.userLastName
+                                        <small>@ViewBag.UsuarioLogueado.profileName</small>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </a>
+                    </div>
+                    @*<div id="appSidebarProfileMenu" class="collapse">
+                            <div class="menu-item pt-5px">
+                                <a href="javascript:;" class="menu-link">
+                                    <div class="menu-icon"><i class="fa fa-cog"></i></div>
+                                    <div class="menu-text">Settings</div>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a href="javascript:;" class="menu-link">
+                                    <div class="menu-icon"><i class="fa fa-pencil-alt"></i></div>
+                                    <div class="menu-text"> Send Feedback</div>
+                                </a>
+                            </div>
+                            <div class="menu-item pb-5px">
+                                <a href="javascript:;" class="menu-link">
+                                    <div class="menu-icon"><i class="fa fa-question-circle"></i></div>
+                                    <div class="menu-text"> Helps</div>
+                                </a>
+                            </div>
+                            <div class="menu-divider m-0"></div>
+                        </div>*@
+                    <div class="menu-header inicio"></div>
+
+                    @*<div class="menu-item has-sub expand">
+                            <a href="javascript:;" class="menu-link">
+                                <div class="menu-icon">
+                                    <i class="fa fa-align-left"></i>
+                                </div>
+                                <div class="menu-text">Menu Level</div>
+                                <div class="menu-caret"></div>
+                            </a>
+                            <div class="menu-submenu" style="display: block;">
+
+                                <div class="menu-item has-sub expand">
+                                    <a href="javascript:;" class="menu-link">
+                                        <div class="menu-text">Menu 1.1</div>
+                                        <div class="menu-caret"></div>
+                                    </a>
+                                    <div class="menu-submenu" style="display: block;">
+                                        <div class="menu-item has-sub expand">
+                                            <a href="javascript:;" class="menu-link">
+                                                <div class="menu-text">Menu 2.1</div>
+                                                <div class="menu-caret"></div>
+                                            </a>
+                                            <div class="menu-submenu" style="display: block;">
+                                                <div class="menu-item"><a href="javascript:;" class="menu-link"><div class="menu-text">Menu 3.1</div></a></div>
+                                                <div class="menu-item"><a href="javascript:;" class="menu-link"><div class="menu-text">Menu 3.2</div></a></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+
+                    <!-- BEGIN minify-button -->
+                    <div class="menu-item d-flex">
+                        <a href="javascript:;" class="app-sidebar-minify-btn ms-auto" data-toggle="app-sidebar-minify"><i class="fa fa-angle-double-left"></i></a>
+                    </div>
+                    <!-- END minify-button -->
+
+                </div>
+                <!-- END menu -->
+            </div>
+            <!-- END scrollbar -->
+        </div>
+        <div class="app-sidebar-bg"></div>
+        <div class="app-sidebar-mobile-backdrop"><a href="#" data-dismiss="app-sidebar-mobile" class="stretched-link"></a></div>
+        <!-- END #sidebar -->
+        <!-- BEGIN #content -->
+        <div id="content" class="app-content">
+            <!-- BEGIN breadcrumb -->
+            @*<ol class="breadcrumb float-xl-end">
+                    <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
+                    <li class="breadcrumb-item"><a href="javascript:;">Library</a></li>
+                    <li class="breadcrumb-item active">Data</li>
+                </ol>*@
+            <!-- END breadcrumb -->
+            <!-- BEGIN page-header -->
+            <h1 class="page-header">@ViewData["Title"] <small></small></h1>
+            <!-- END page-header -->
+            <!-- BEGIN panel -->
+            <div class="panel panel-inverse">
+                <div class="panel-heading">
+                    <h4 class="panel-title">@ViewData["Modulo"]</h4>
+                    <div class="panel-heading-btn">
+                        @*<a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                            <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                            <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a>
+                            <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a>*@
+                    </div>
+                </div>
+                <div class="panel-body">
+                    @RenderBody()
+                </div>
+            </div>
+            <!-- END panel -->
+            <!--<div class="theme-panel" style="margin-top: 20%;height: 140px;">
+                <a href="javascript:;" data-toggle="theme-panel-expand" class="theme-collapse-btn"><i class="fa fa-cog"></i></a>
+                <div class="theme-panel-content" data-scrollbar="true" data-height="100%">
+                    <h5>Cambio empresa</h5>-->
+            <!-- BEGIN theme-list -->
+            <!-- BEGIN theme-switch -->
+            <!--<div class="row mt-10px align-items-center">
+                        <div class="mb-3">
+                            <label class="form-label">Empresa</label>
+                            <select class="form-control form-select"></select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>-->
+            <!--<div class="theme-panel">
+                <a href="javascript:;" data-toggle="theme-panel-expand" class="theme-collapse-btn"><i class="fa fa-cog"></i></a>
+                <div class="theme-panel-content" data-scrollbar="true" data-height="100%">
+                    <h5>Empresas</h5>-->
+            <!-- BEGIN theme-version -->
+            <!--<div id="panelEmpresas" class="theme-version">
+            </div>-->
+            <!-- END theme-version -->
+            <!--</div>
+            </div>-->
+            <div class="theme-panel">
+                <a href="javascript:;" data-toggle="theme-panel-expand" class="theme-collapse-btn"><i class="fa fa-cog"></i></a>
+                <div class="theme-panel-content" data-scrollbar="true" data-height="100%">
+                    <h5>Empresas</h5>
+                    <!-- BEGIN theme-version -->
+                    <div id="panelEmpresas" class="theme-version">
+                    </div>
+                    <div class="theme-panel-divider"></div>
+                    <a href="javascript:;" class="btn btn-default d-block w-100 rounded-pill" data-toggle="reset-local-storage"><b>Reset Local Storage</b></a>
+                    <!-- END theme-version -->
+                </div>
+            </div>
+        </div>
+        <!-- END #content -->
+        <!-- BEGIN scroll to top btn -->
+        <a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top" data-toggle="scroll-to-top"><i class="fa fa-angle-up"></i></a>
+        <!-- END scroll to top btn -->
+    </div>
+
+    <div class="modal fade" id="mCambiarContrasena" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambiar Contraseña</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label">Contraseña Nueva</label>
+                        <input type="password" class="form-control" id="contrasena">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rContrasena" class="form-label">Repetir Contraseña Nueva</label>
+                        <input type="password" class="form-control" id="rContrasena">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnContrasena" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- END #app -->
+    <!-- ================== BEGIN core-js ================== -->
+    <script src="~/assets/js/vendor.min.js"></script>
+    <script src="~/assets/js/app.min.js"></script>
+    <script src="~/assets/plugins/moment/min/moment.min.js"></script>
+    <script src="~/assets/plugins/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/assets/plugins/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+    <script src="~/assets/plugins/parsleyjs/dist/parsley.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="~/assets/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
+
+    <script src="~/assets/plugins/datatables.net-fixedcolumns/js/dataTables.fixedColumns.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-fixedcolumns-bs5/js/fixedColumns.bootstrap5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-colreorder/js/dataTables.colReorder.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-colreorder-bs5/js/colReorder.bootstrap5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-keytable-bs5/js/keyTable.bootstrap5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-rowreorder/js/dataTables.rowReorder.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-rowreorder-bs5/js/rowReorder.bootstrap5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-select/js/dataTables.select.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-select-bs5/js/select.bootstrap5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-buttons/js/buttons.colVis.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/assets/plugins/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="~/assets/plugins/pdfmake/build/pdfmake.min.js"></script>
+    <script src="~/assets/plugins/pdfmake/build/vfs_fonts.js"></script>
+    <script src="~/assets/plugins/jszip/dist/jszip.min.js"></script>
+    <script src="~/assets/plugins/select2/dist/js/select2.js"></script>
+    <script src="~/assets/plugins/jquery.maskedinput/src/jquery.maskedinput.js"></script>
+    <script src="~/assets/plugins/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.3/jquery.inputmask.bundle.min.js"></script>
+    <script src="~/assets/plugins/jquery-ui-dist/jquery-ui.js"></script>
+
+    @*<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>*@
+    <script src="~/js/qrcode/qrcode.min.js"></script>
+    @*<script src="https://cdn.datatables.net/datetime/1.1.2/js/dataTables.dateTime.min.js"></script>
+        <script src="~/assets/plugins/datatables.net/js/dataTables.editor.min.js"></script>*@
+
+    @*<script src="https://cdn.datatables.net/scroller/2.0.7/js/dataTables.scroller.min.js"></script>*@
+
+
+    <script src="~/scripts/layout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <script src="~/js/download.js"></script>
+
+    @RenderSection("Scripts", false/*required*/)
+    <!-- ================== END core-js ================== -->
+
+</body>
+</html>

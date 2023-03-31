@@ -1,0 +1,70 @@
+﻿
+@{
+    ViewData["Title"] = "Rendiciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="container-fluid text-center">
+        <div class="row">
+            <div class="col-auto me-auto">
+                <div class="mb-3">
+                    <label for="btnNuevo" class="form-label">&nbsp;</label>
+                    <button id="btnNuevo" type="button" class="form-control btn btn-primary" @*data-bs-toggle="modal" data-bs-target="#mAgregarComprador"*@>
+                        Nuevo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div id="div_table">
+
+</div>
+<div class="modal fade" id="mNuevo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModal">Nueva Caja</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="txtDescripcion" class="form-label">Descripción</label>
+                                <input id="txtDescripcion" type="text" class="form-control" />
+                                <input type="hidden" id="txtId" />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="mb-3">
+                                <label for="txtMonto" class="form-label">Monto S/.</label>
+                                <input id="txtMonto" type="number" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button id="btnGuardar" type="button" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="spinner_loading" class="loading" style="display:none;">Loading</div>
+
+@section Scripts
+{
+    <script>
+        var url_ListCajas = "@Url.Content("~/")" + "Box/ListCajas";
+        var url_InsertCaja = "@Url.Content("~/")" + "Box/InsertCaja";
+        var url_DeleteCaja = "@Url.Content("~/")" + "Box/DeleteCaja";
+    </script>
+    <script src="@Url.Content("~/Scripts/administracion/cajas.js")"></script>
+}-

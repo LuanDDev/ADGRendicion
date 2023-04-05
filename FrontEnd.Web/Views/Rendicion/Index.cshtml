@@ -23,28 +23,52 @@
 
 </div>
 <div class="modal fade" id="mNuevo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="titleModal">Nueva Caja</h5>
+                <h5 class="modal-title" id="titleModal"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col">
-                            <div class="mb-3">
-                                <label for="txtDescripcion" class="form-label">Descripción</label>
-                                <input id="txtDescripcion" type="text" class="form-control" />
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="txtDescripcion" placeholder="name@example.com">
+                                <label for="txtDescripcion">Descripción</label>
                                 <input type="hidden" id="txtId" />
                             </div>
                         </div>
-                        <div class="col-3">
-                            <div class="mb-3">
-                                <label for="txtMonto" class="form-label">Monto S/.</label>
-                                <input id="txtMonto" type="number" class="form-control" />
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="chkCaja" checked>
+                                <label class="form-check-label" for="flexRadioDefault1">
+                                    Rendición de Caja
+                                </label>
                             </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="chkReq">
+                                <label class="form-check-label" for="flexRadioDefault2">
+                                    Rendición de Requisicion
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div id="div_caja">
+                                <select id="sCaja" class="form-select" aria-label="Default select example">
+                                </select>
+                            </div>
+                            <div id="div_requisicion">
+                                <select id="sRequisicion" class="form-select" aria-label="Default select example">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+
                         </div>
                     </div>
                 </div>
@@ -57,14 +81,281 @@
     </div>
 </div>
 
+<div class="modal fade" id="mSustentosCaja" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalSustentosCaja"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="progress" style="height:30px !important">
+                                <div class="progress-bar fs-16px fw-bold" style="width: 100%; background-color: grey !important;">FLUJO DE CAJA  ("MINA" "ACOPIO" "CHICA")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Empresa</label>
+                                <div class="col-md-9">
+                                    <input id="txtEmpresa" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Report N°</label>
+                                <div class="col-md-9">
+                                    <input id="txtNroReporte" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">RUC</label>
+                                <div class="col-md-9">
+                                    <input id="txtRuc" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Área</label>
+                                <div class="col-md-9">
+                                    <input id="txtArea" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Trabajador Responsable</label>
+                                <div class="col-md-9">
+                                    <input id="txtTrabajador" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Jefe de Area</label>
+                                <div class="col-md-9">
+                                    <input id="txtJefeArea" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Motivo</label>
+                                <div class="col-md-9">
+                                    <input id="txtMotivo" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Periodo</label>
+                                <div class="col-md-9">
+                                    <input id="txtPeriodo" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Fecha</label>
+                                <div class="col-md-9">
+                                    <input id="txtFecha" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button id="btnAgregarSustento" class="btn btn-green" type="button">Agregar Sustento</button>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button id="btnGuardar" type="button" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mSCFactura" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="box-shadow: 1px 1px 100px black;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalSCFactura"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">RUC</label>
+                                <div class="col-md-7">
+                                    <input id="txtRucSCFactura" type="text" class="form-control" placeholder="Ingrese RUC" />
+                                </div>
+                                <a id="btnSearchRucSCFactura" class="col-sm-2" style="cursor: pointer;"><i class="ion ion-md-search fa-2x pt-1"></i></a>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <label class="form-label col-md-2 pt-2">Empresa</label>
+                                <div class="col-md-10">
+                                    <input id="txtEmpresaSCFactura" type="text" class="form-control" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-auto">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Monto</label>
+                                <div class="col-md-9">
+                                    <input id="txtMontoSCFactura" type="number" class="form-control" placeholder="Ingrese Monto" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Fecha</label>
+                                <div class="col-md-9">
+                                    <input id="txtFechaSCFactura" type="date" class="form-control" placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">PDF</label>
+                        <input class="form-control" type="file" id="fPDF" accept="application/pdf">
+                    </div>
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">XML</label>
+                        <input class="form-control" type="file" id="fXML" accept="text/xml">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button id="btnAgregarSCFactura" type="button" class="btn btn-primary">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="mSCVoucher" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalSCVoucher"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button id="btnAgregarSCVoucher" type="button" class="btn btn-primary">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="mSustentosRequisicion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalSustentosRequisicion"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="txtDescripcion" placeholder="name@example.com">
+                                <label for="txtDescripcion">Descripción</label>
+                                <input type="hidden" id="txtId" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="chkCaja" checked>
+                                <label class="form-check-label" for="flexRadioDefault1">
+                                    Rendición de Caja
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="chkReq">
+                                <label class="form-check-label" for="flexRadioDefault2">
+                                    Rendición de Requisicion
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div id="div_caja">
+                                <select id="sCaja" class="form-select" aria-label="Default select example">
+                                </select>
+                            </div>
+                            <div id="div_requisicion">
+                                <select id="sRequisicion" class="form-select" aria-label="Default select example">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button id="btnGuardar" type="button" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <div id="spinner_loading" class="loading" style="display:none;">Loading</div>
 
 @section Scripts
 {
     <script>
-        var url_ListCajas = "@Url.Content("~/")" + "Box/ListCajas";
-        var url_InsertCaja = "@Url.Content("~/")" + "Box/InsertCaja";
-        var url_DeleteCaja = "@Url.Content("~/")" + "Box/DeleteCaja";
+        var url_ListRendiciones = "@Url.Content("~/")" + "Rendicion/ListRendiciones";
+        var url_GetRendicion = "@Url.Content("~/")" + "Rendicion/GetRendicion";
+        var url_InserRendicion = "@Url.Content("~/")" + "Rendicion/InserRendicion";
+        var url_ListCajasCombo = "@Url.Content("~/")" + "Box/ListCajasCombo";
+        var url_GetRequisiciones = "@Url.Content("~/")" + "Rendicion/GetRequisiciones";
+        var url_DeleteRendicion = "@Url.Content("~/")" + "Rendicion/DeleteRendicion";
+        var url_ConsultaRuc = "@Url.Content("~/")" + "Rendicion/ConsultaRuc";
     </script>
-    <script src="@Url.Content("~/Scripts/administracion/cajas.js")"></script>
-}-
+    <script src="@Url.Content("~/Scripts/rendicion.js")"></script>
+}

@@ -22,3 +22,14 @@
 table.dataTable tbody td {
     vertical-align: middle;
 }
+
+.label-popup {
+    border-bottom: groove;
+    border-top: thin;
+    border-left: thin;
+    border-right: thin;
+}
+
+.form-control:disabled, .form-control[readonly] {
+    background-color: #e9ecef00;
+}

@@ -4,6 +4,11 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@section Styles
+{
+    <link href="@Url.Content("~/css/jsuites.css")" rel="stylesheet" />
+}
+
 <div class="container-fluid">
     <div class="container-fluid text-center">
         <div class="row">
@@ -30,7 +35,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                
+
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col">
@@ -61,10 +66,13 @@
 
 @section Scripts
 {
+    <script src="@Url.Content("~/js/jsuites.js")"></script>
+
     <script>
         var url_ListCajas = "@Url.Content("~/")" + "Box/ListCajas";
         var url_InsertCaja = "@Url.Content("~/")" + "Box/InsertCaja";
         var url_DeleteCaja = "@Url.Content("~/")" + "Box/DeleteCaja";
     </script>
+
     <script src="@Url.Content("~/Scripts/administracion/cajas.js")"></script>
 }-

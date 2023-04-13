@@ -1,0 +1,10 @@
+﻿.btn.btn-icon {
+    width: 22px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    line-height: 25px;
+    text-align: center;
+    font-size: 19px;
+    border-radius: 5px;
+}

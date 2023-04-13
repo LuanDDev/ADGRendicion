@@ -97,6 +97,7 @@ $(document).ready(function () {
                 sessionStorage.setItem('IdEmpresa', $(this).attr('dataIdEmpresa'));
                 sessionStorage.setItem('Abreviatura', $(this).attr('dataAbreviatura'));
                 sessionStorage.setItem('NombreCorto', $(this).attr('dataNombreCorto'));
+                sessionStorage.setItem('Ruc', $(this).attr('dataRuc'));
                 sessionStorage.setItem('RazonSocial', $(this).attr('dataRazonSocial'));
                 sessionStorage.setItem('Logo', $(this).attr('dataLogo'));
                 sessionStorage.setItem('elegido', true);
@@ -118,6 +119,7 @@ $(document).ready(function () {
                 sessionStorage.setItem('IdEmpresa', $(this).attr('dataIdEmpresa'));
                 sessionStorage.setItem('Abreviatura', $(this).attr('dataAbreviatura'));
                 sessionStorage.setItem('NombreCorto', $(this).attr('dataNombreCorto'));
+                sessionStorage.setItem('Ruc', $(this).attr('dataRuc'));
                 sessionStorage.setItem('RazonSocial', $(this).attr('dataRazonSocial'));
                 sessionStorage.setItem('Logo', $(this).attr('dataLogo'));
                 sessionStorage.setItem('elegido', true);
@@ -321,17 +323,18 @@ $(document).ready(function () {
                     var list = JSON.parse(data.value).companies;
 
                     var ls = list.filter(x => x.softwareId == 2);
+                    //console.log('Empresassss');
                     //console.log(ls);
 
                     var html = "";
                     var panel = "";
                     for (var i = 0; i < ls.length; i++) {
                         html = html + '<div class="item_botonera">';
-                        html = html + '<a id="btn_' + ls[i].idEmpresa + '_' + ls[i].RazonSocial + '" dataRazonSocial="' + ls[i].RazonSocial + '" dataNombreCorto="' + ls[i].NombreCorto + '" dataIdEmpresa="' + ls[i].idEmpresa + '" dataAbreviatura="' + ls[i].Abreviatura + '" dataLogo="' + ls[i].Logo + '" class="btn btn-outline-light btnCompany"><img src="../img/companies/' + ls[i].Logo + '" class="img-thumbnail" /></a>';
+                        html = html + '<a id="btn_' + ls[i].idEmpresa + '_' + ls[i].RazonSocial + '" dataRuc="' + ls[i].Ruc + '" dataRazonSocial="' + ls[i].RazonSocial + '" dataNombreCorto="' + ls[i].NombreCorto + '" dataIdEmpresa="' + ls[i].idEmpresa + '" dataAbreviatura="' + ls[i].Abreviatura + '" dataLogo="' + ls[i].Logo + '" class="btn btn-outline-light btnCompany"><img src="../img/companies/' + ls[i].Logo + '" class="img-thumbnail" /></a>';
                         html = html + '</div>';
 
                         panel = panel + '<div class="theme-version-item">';
-                        panel = panel + '<button id="btnCompany' + ls[i].Abreviatura + '" dataRazonSocial="' + ls[i].RazonSocial + '" dataNombreCorto="' + ls[i].NombreCorto + '" dataIdEmpresa="' + ls[i].idEmpresa + '" dataAbreviatura="' + ls[i].Abreviatura + '" dataLogo="' + ls[i].Logo + '" class="btn btn-outline-light theme-version-link btnCompanyPanel">';
+                        panel = panel + '<button id="btnCompany' + ls[i].Abreviatura + '" dataRuc="' + ls[i].Ruc + '" dataRazonSocial="' + ls[i].RazonSocial + '" dataNombreCorto="' + ls[i].NombreCorto + '" dataIdEmpresa="' + ls[i].idEmpresa + '" dataAbreviatura="' + ls[i].Abreviatura + '" dataLogo="' + ls[i].Logo + '" class="btn btn-outline-light theme-version-link btnCompanyPanel">';
                         panel = panel + '<span style="background-image: url(../img/companies/' + ls[i].Logo + '); margin-left: 15px; width: 80px;" class="theme-version-cover"></span>';
                         panel = panel + '</button>';
                         panel = panel + '</div>';

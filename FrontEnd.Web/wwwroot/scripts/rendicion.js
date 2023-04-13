@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+﻿
+$(document).ready(function () {
 
     var dsh = {
         init: function () {
@@ -36,6 +37,26 @@
             $(document).on('click', '.agregarSustento', function () {
                 if ($(this).attr('dataTipo') == 'Caja') {
                     $('#titleModalSustentosCaja').text('RENDICIÓN DE CAJA CHICA');
+
+                    var id = $(this).attr('dataId');
+                    var tipo = $(this).attr('dataTipo');
+                    var codigo = $(this).attr('dataCodigo');
+                    var fecha = new Date($(this).attr('dataDate'));
+
+                    
+                    $('#txtIdRendicionSC').val(id);
+                    $('#txtCodigoRendicionSC').val(codigo);
+
+                    $('#txtEmpresa').val(sessionStorage.RazonSocial);
+                    $('#txtRuc').val(sessionStorage.Ruc);
+                    $('#txtTrabajador').val(userLogin);
+                    $('#txtMotivo').val('Informe de Caja  (Tipo de caja "MINA" "ACOPIO" "CHICA")');
+                    $('#txtNroReporte').val(codigo);
+                    $('#txtFecha').val(dsh.dateToText(fecha));
+                    $('#txtPeriodo').val(dsh.obtenerNombreMes(fecha.getMonth()).toUpperCase() + ' ' + fecha.getFullYear());
+
+                    dsh.ListSustentos(id);
+
                     $('#mSustentosCaja').modal('show');
                 } else if ($(this).attr('dataTipo') == 'Requisición') {
                     $('#titleModalSustentosRequisicion').text('Sustento de Requisición');
@@ -115,13 +136,13 @@
                                 case '0':
                                     console.log(value);
                                     resolve();
-                                    $('#titleModalSCFactura').text('Factura');
+                                    $('#titleModalSCFactura').text('Factura Nueva');
                                     $('#mSCFactura').modal('show');
                                     break;
                                 case '1':
                                     console.log(value);
                                     resolve();
-                                    $('#titleModalSCVoucher').text(Factura);
+                                    $('#titleModalSCVoucher').text('');
                                     $('#mSCVoucher').modal('show');
                                     break;
                                 case '2':
@@ -174,6 +195,115 @@
                     }
                 });
             });
+
+            $(document).on('click', '#btnAgregarSCFactura', function () {
+                if (dsh.validarSCFactura()) {
+                    $('#spinner_loading').show();
+                    dsh.InsertSustento('Factura', $('#txtCodigoRendicionSC').val());
+                }
+            });
+        },
+
+        limpiarValidar() {
+
+        },
+
+        validarSCFactura() {
+
+            var val = 0;
+            if ($('#txtDescripcionSCFactura').val() == '') {
+                $("#txtDescripcionSCFactura").removeClass("parsley-success");
+                $("#txtDescripcionSCFactura").removeClass("parsley-error");
+                $("#txtDescripcionSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtDescripcionSCFactura").removeClass("parsley-success");
+                $("#txtDescripcionSCFactura").removeClass("parsley-error");
+                $("#txtDescripcionSCFactura").addClass("parsley-success");
+            }
+
+
+            if ($("#txtRucSCFactura").val() == '') {
+                $("#txtRucSCFactura").removeClass("parsley-success");
+                $("#txtRucSCFactura").removeClass("parsley-error");
+                $("#txtRucSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtRucSCFactura").removeClass("parsley-success");
+                $("#txtRucSCFactura").removeClass("parsley-error");
+                $("#txtRucSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtEmpresaSCFactura').val() == '') {
+                $("#txtEmpresaSCFactura").removeClass("parsley-success");
+                $("#txtEmpresaSCFactura").removeClass("parsley-error");
+                $("#txtEmpresaSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtEmpresaSCFactura").removeClass("parsley-success");
+                $("#txtEmpresaSCFactura").removeClass("parsley-error");
+                $("#txtEmpresaSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtNroFacturaSCFactura').val() == '') {
+                $("#txtNroFacturaSCFactura").removeClass("parsley-success");
+                $("#txtNroFacturaSCFactura").removeClass("parsley-error");
+                $("#txtNroFacturaSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtNroFacturaSCFactura").removeClass("parsley-success");
+                $("#txtNroFacturaSCFactura").removeClass("parsley-error");
+                $("#txtNroFacturaSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtMontoSCFactura').val() == '') {
+                $("#txtMontoSCFactura").removeClass("parsley-success");
+                $("#txtMontoSCFactura").removeClass("parsley-error");
+                $("#txtMontoSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtMontoSCFactura").removeClass("parsley-success");
+                $("#txtMontoSCFactura").removeClass("parsley-error");
+                $("#txtMontoSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtFechaSCFactura').val() == '') {
+                $("#txtFechaSCFactura").removeClass("parsley-success");
+                $("#txtFechaSCFactura").removeClass("parsley-error");
+                $("#txtFechaSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtFechaSCFactura").removeClass("parsley-success");
+                $("#txtFechaSCFactura").removeClass("parsley-error");
+                $("#txtFechaSCFactura").addClass("parsley-success");
+            }
+
+            if ($("#fPDF").get(0).files.length == 0 || $("#fPDF").get(0).files[0].size == 0) {
+                $("#fPDF").removeClass("parsley-success");
+                $("#fPDF").removeClass("parsley-error");
+                $("#fPDF").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#fPDF").removeClass("parsley-success");
+                $("#fPDF").removeClass("parsley-error");
+                $("#fPDF").addClass("parsley-success");
+            }
+
+            if ($("#fXML").get(0).files.length == 1 && $("#fXML").get(0).files[0].size == 0) {
+                $("#fXML").removeClass("parsley-success");
+                $("#fXML").removeClass("parsley-error");
+                $("#fXML").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#fXML").removeClass("parsley-success");
+                $("#fXML").removeClass("parsley-error");
+            }
+
+            if (val == 0) {
+                return true;
+            } else {
+                return false;
+            }
         },
 
         sumarDias(fecha, dias) {
@@ -191,6 +321,23 @@
                 dsh.padTo2Digits(date.getMonth() + 1),
                 dsh.padTo2Digits(date.getDate()),
             ].join('-');
+        },
+
+        dateToText(date) {
+            var primerDia = new Date(date.getFullYear(), date.getMonth(), 1);
+            var ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+            return dsh.padTo2Digits(primerDia.getDate()) + ' AL ' + dsh.padTo2Digits(ultimoDia.getDate()) + '/' + dsh.padTo2Digits(ultimoDia.getMonth()) + '/' + ultimoDia.getFullYear();
+        },
+
+        obtenerNombreMes(numero) {
+            let miFecha = new Date();
+            if (0 < numero && numero <= 12) {
+                miFecha.setMonth(numero - 1);
+                return new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(miFecha);
+            } else {
+                return null;
+            }
         },
 
         soles(value) {
@@ -246,7 +393,7 @@
                                 ls[i].descripcion,
                                 ls[i].tipo == 'Caja' ? 'Caja : ' + ls[i].caja : 'Requisición : ' + ls[i].requisicion,
                                 estado,
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Agregar Sustentos" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" class="btn btn-indigo btn-xs agregarSustento"><i class="ion ion-md-apps"></i></button> ' +
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Agregar Sustentos" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataDate="' + ls[i].dateCreate + '" class="btn btn-indigo btn-xs agregarSustento"><i class="ion ion-md-apps"></i></button> ' +
                                 '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" class="btn btn-primary btn-xs modificar"><i class="ion ion-md-create"></i></button> ' +
                                 '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" class="btn btn-danger btn-xs borrar"><i class="ion ion-md-trash"></i></button>   '
                             ]);
@@ -513,6 +660,191 @@
                         texts: { trigger: "-- Seleccione Requisición --", noResult: "No se encuentró", search: "Buscar" }
                     });
                     //jSuites.dropdown(document.getElementById('sCaja'));
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });
+        },
+
+        ListSustentos(id) {
+            $.ajax({
+                cache: false,
+                url: url_ListSustentos,
+                type: "POST",
+                data: {
+                    idRendicion: id,
+                },
+                success: function (data) {
+                    if (data.status) {
+                        $('#div_tableSC').html('');
+                        var ls = JSON.parse(data.value).data;
+
+                        var columns = [
+                            { title: 'N°', width: '30px' },
+                            { title: 'Centro Costo', width: '70px' },
+                            { title: 'Fecha Doc', width: '50px' },
+                            { title: 'Tipo', width: '50px' },
+                            { title: 'RUC', width: '50px' },
+                            { title: 'N° Doc', width: '50px' },
+                            { title: 'Descripción', width: '20px' },
+                            { title: 'Monto', width: '50px' },
+                            { title: 'Acciones', width: '50px' },
+                        ]
+
+                        var dataSet = [];
+                        for (var i = 0; i < ls.length; i++) {
+                            
+
+                            dataSet.push([
+                                ls[i].id,
+                                '',
+                                ls[i].tipo == 'Factura' ? ls[i].fechaDoc : fechaVoucher,
+                                ls[i].tipo == 'Factura' ? 'FA' : 'VR',
+                                ls[i].tipo == 'Factura' ? ls[i].ruc : '',
+                                ls[i].tipo == 'Factura' ? ls[i].nroDoc : ls[i].nroVoucher,
+                                ls[i].descripcion,
+                                ls[i].tipo == 'Factura' ? dsh.soles(ls[i].importe) : dsh.soles(ls[i].importeVoucher),
+                                '<div class="fa-2x">' +
+                                    '<button type="button" data-bs-toggle="tooltip" data-bs-title="Ver PDF" class="btn btn-outline-danger btn-icon verPDFSCFactura"><i class="fas fa-file-pdf"></i></button> ' +
+                                    '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" class="btn btn-outline-primary btn-icon modificarSCFactura"><i class="ion ion-md-create"></i></button> ' +
+                                    '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" class="btn btn-outline-danger btn-icon borrarSCFactura"><i class="ion ion-md-trash"></i></button>   ' +
+                                '</div>'
+                            ]);
+                        }
+
+                        var htmlTableDetalle = '';
+                        htmlTableDetalle += `
+                        <table id="tSustentosCaja" class="table table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>`;
+                        for (var i = 0; i < columns.length; i++) {
+                            htmlTableDetalle += `<th style="width: ` + columns[i].width + `">` + columns[i].title + `</th>`;
+                        }
+                        htmlTableDetalle += `
+                                </tr>
+                            </thead>`;
+                        htmlTableDetalle += `
+                            <tbody>`;
+                        for (var i = 0; i < dataSet.length; i++) {
+                            htmlTableDetalle += `<tr style="vertical-align: middle;">`;
+                            for (var j = 0; j < dataSet[i].length; j++) {
+                                htmlTableDetalle += `
+                                    <td>` + (dataSet[i][j] == null ? '' : dataSet[i][j]) + `</td>
+                                `;
+                            }
+                            htmlTableDetalle += `</tr>`;
+                        }
+                        htmlTableDetalle += `
+                            </tbody>
+                        </table>`;
+                        $('#div_tableSC').html(htmlTableDetalle);
+
+                        $('#tSustentosCaja').DataTable({
+                            destroy: true,
+                            //scrollY: 400,
+                            //scrollX: true,
+                            //scrollCollapse: true,
+                            //fixedColumns: true,
+                            //responsive: true,
+                            initComplete: function () {
+                                $(this.api().table().container()).find('input[type="search"]').parent().wrap('<form>').parent().attr('autocomplete', 'off');
+                            },
+                            language: {
+                                "processing": "Procesando...",
+                                "lengthMenu": "Mostrar _MENU_ registros",
+                                "zeroRecords": "No se encontraron resultados",
+                                "emptyTable": "Ningún dato disponible en esta tabla",
+                                "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                                "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+                                "search": "Buscar:",
+                                "infoThousands": ",",
+                                "loadingRecords": "Cargando...",
+                                "paginate": {
+                                    "first": "Primero",
+                                    "last": "Último",
+                                    "next": "Siguiente",
+                                    "previous": "Anterior"
+                                },
+                                "aria": {
+                                    "sortAscending": ": Activar para ordenar la columna de manera ascendente",
+                                    "sortDescending": ": Activar para ordenar la columna de manera descendente"
+                                },
+                                "emptyTable": "No hay datos disponibles en la tabla",
+                                "zeroRecords": "No se encontraron coincidencias",
+                                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                                "infoFiltered": "(Filtrado de _MAX_ total de entradas)",
+                                "lengthMenu": "Mostrar _MENU_ entradas",
+                            }
+                        });
+                        $('[data-bs-toggle="tooltip"]').tooltip();
+                        $('#spinner_loading').hide();
+                    }
+                },
+                error: function (request) {
+                }
+            });
+        },
+
+        InsertSustento(tipo,codigo) {
+            var idRendicion = $('#txtIdRendicionSC').val();
+            var fdata = new FormData();
+            fdata.append('idRendicion', idRendicion);
+            fdata.append('tipo', tipo);
+            fdata.append('codigo', codigo);
+            switch (tipo) {
+                case 'Factura':
+                    fdata.append('id', $('#txtIdSCFactura').val());
+                    fdata.append('descripcion', $('#txtDescripcionSCFactura').val());
+                    fdata.append('ruc', $('#txtRucSCFactura').val());
+                    fdata.append('razonSocial', $('#txtEmpresaSCFactura').val());
+                    fdata.append('nroDoc', $('#txtNroFacturaSCFactura').val());
+                    fdata.append('fechaDoc', $('#txtFechaSCFactura').val());
+                    fdata.append('importe', $('#txtMontoSCFactura').val());
+
+                    var filePDF = $("#fPDF").get(0).files;
+                    var fileXML = $("#fXML").get(0).files;
+                    
+                    fdata.append(filePDF[0].name, filePDF[0]);
+
+                    if (fileXML.length != 0) {
+                        fdata.append(fileXML[0].name, fileXML[0]);
+                    }
+                    break;
+            }
+                
+
+            $.ajax({
+                type: "POST",
+                url: url_InsertSustento,
+                //beforeSend: function (xhr) {
+                //    xhr.setRequestHeader("XSRF-TOKEN",
+                //        $('input:hidden[name="__RequestVerificationToken"]').val());
+                //},
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    //console.log(data);
+                    if (data.status) {
+                        //var ls = JSON.parse(data.value).data;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Se guardó correctamente!',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $('#mSCFactura').modal('hide');
+                                dsh.ListSustentos(idRendicion);
+                                $('#spinner_loading').hide();
+                            }
+                        })
+                    }
+                    
+
+                    
                 },
                 error: function () {
                     console.log("Error");

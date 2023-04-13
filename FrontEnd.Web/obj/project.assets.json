@@ -7008,11 +7008,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Dev\\ADGRendiciones\\ADGRendiciones\\FrontEnd.Web\\FrontEnd.Web.csproj",
+      "projectUniqueName": "D:\\Dev\\ADGRendicion\\FrontEnd.Web\\FrontEnd.Web.csproj",
       "projectName": "FrontEnd.Web",
-      "projectPath": "D:\\Dev\\ADGRendiciones\\ADGRendiciones\\FrontEnd.Web\\FrontEnd.Web.csproj",
+      "projectPath": "D:\\Dev\\ADGRendicion\\FrontEnd.Web\\FrontEnd.Web.csproj",
       "packagesPath": "C:\\Users\\ldelacruz\\.nuget\\packages\\",
-      "outputPath": "D:\\Dev\\ADGRendiciones\\ADGRendiciones\\FrontEnd.Web\\obj\\",
+      "outputPath": "D:\\Dev\\ADGRendicion\\FrontEnd.Web\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ldelacruz\\AppData\\Roaming\\NuGet\\NuGet.Config",

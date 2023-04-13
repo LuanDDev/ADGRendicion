@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "a3crvUqv1pWTrWIJzs7VF1q2Dc+ZHQrMM5SV4jm4Y3Ct6IUiQfJTj34KwZzPE823Ew8l6vkU4G/Dt3NykepMQg==",
+  "dgSpecHash": "YN05/a/sLo4RFIH4HHfGHpGjuPjpFr7i3lVTY814BDTudOA8plxU9V74xmSShGtacJmQnn09EImLNEscy1hTQw==",
   "success": true,
-  "projectFilePath": "D:\\Dev\\ADGRendiciones\\ADGRendiciones\\FrontEnd.Web\\FrontEnd.Web.csproj",
+  "projectFilePath": "D:\\Dev\\ADGRendicion\\FrontEnd.Web\\FrontEnd.Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ldelacruz\\.nuget\\packages\\microsoft.aspnetcore.html.abstractions\\2.2.0\\microsoft.aspnetcore.html.abstractions.2.2.0.nupkg.sha512",
     "C:\\Users\\ldelacruz\\.nuget\\packages\\microsoft.aspnetcore.mvc.razor.extensions\\3.1.32\\microsoft.aspnetcore.mvc.razor.extensions.3.1.32.nupkg.sha512",

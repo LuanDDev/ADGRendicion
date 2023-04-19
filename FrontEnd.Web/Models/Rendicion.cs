@@ -11,6 +11,8 @@ namespace FrontEnd.Web.Models
         public string descripcion { get; set; }
         public string codigo { get; set; }
         public string tipo { get; set; }
+        public string area { get; set; }
+        public string jefeArea { get; set; }
         public int? idCaja { get; set; }
         public int? idRequisicion { get; set; }
         public int companyId { get; set; }

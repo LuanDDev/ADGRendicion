@@ -128,7 +128,7 @@ namespace FrontEnd.Web.Controllers
             }
         }
 
-        public async Task<IActionResult> InserRendicion(Rendicion obj)
+        public async Task<IActionResult> InsertRendicion(Rendicion obj)
         {
             try
             {
@@ -163,7 +163,39 @@ namespace FrontEnd.Web.Controllers
                 return BadRequest(new { value = ex.Message, status = false });
             }
         }
+        public async Task<IActionResult> UpdateAreaRendicion(Rendicion obj)
+        {
+            try
+            {
+                var api = _configuration["Api:root"];
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
+                // Pass the handler to httpclient(from you are calling api)
+                HttpClient httpClient = new HttpClient(clientHandler);
+
+                var request_json = JsonSerializer.Serialize(obj);
+                var content = new StringContent(request_json, Encoding.UTF8, "application/json");
+
+                var url = api + "Rendicion/updateAreaRendicion";
+                httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + UsuarioLogueado.Token);
+                var result = await httpClient.PostAsync(url, content);
+
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new ArgumentException("No se encontraron registros");
+                }
+
+                var data = await result.Content.ReadAsStringAsync();
+
+                return Ok(new { value = data, status = true });
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(new { value = ex.Message, status = false });
+            }
+        }
         public async Task<IActionResult> DeleteRendicion(Rendicion obj)
         {
             try
@@ -411,6 +443,15 @@ namespace FrontEnd.Web.Controllers
             {
                 return BadRequest(new { value = ex.Message, status = false });
             }
+        }
+
+        public IActionResult VerPDFFactura([FromBody] PdfFactura obj)
+        {
+            var path = "C://ADGRendicion" + "/" + obj.codigo + "/" + obj.pdf;
+
+            var stream = new FileStream(path, FileMode.Open);
+            return File(stream, "application/pdf", obj.pdf);
+
         }
 
         public async Task<IActionResult> DeleteSustento(Sustento obj)

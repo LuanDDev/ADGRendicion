@@ -96,7 +96,7 @@
                     <div class="row mb-3">
                         <div class="col">
                             <div class="progress" style="height:30px !important">
-                                <div class="progress-bar fs-16px fw-bold" style="width: 100%; background-color: grey !important;">FLUJO DE CAJA  ("MINA" "ACOPIO" "CHICA")</div>
+                                <div class="progress-bar fs-16px fw-bold" style="width: 100%; background-color: grey !important;">FLUJO DE CAJA ("CHICA")</div>
                             </div>
                         </div>
                     </div>
@@ -133,7 +133,7 @@
                             <div class="row">
                                 <label class="form-label col-md-3 pt-2">Área</label>
                                 <div class="col-md-9">
-                                    <input id="txtArea" type="text" class="form-control label-popup" readonly placeholder="" />
+                                    <input id="txtArea" type="text" class="form-control label-popup" placeholder="" />
                                 </div>
                             </div>
                         </div>
@@ -151,7 +151,7 @@
                             <div class="row">
                                 <label class="form-label col-md-3 pt-2">Jefe de Area</label>
                                 <div class="col-md-9">
-                                    <input id="txtJefeArea" type="text" class="form-control label-popup" readonly placeholder="" />
+                                    <input id="txtJefeArea" type="text" class="form-control label-popup" placeholder="" />
                                 </div>
                             </div>
                         </div>
@@ -267,14 +267,17 @@
                         </div>
                     </div>
                     <hr />
-                    <div class="mb-3">
-                        <label for="formFile" class="form-label">PDF</label>
-                        <input class="form-control" type="file" id="fPDF" accept="application/pdf">
+                    <div id="div_adjuntosSCFactura" class="row mb-3">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">PDF</label>
+                            <input class="form-control" type="file" id="fPDF" accept="application/pdf">
+                        </div>
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">XML</label>
+                            <input class="form-control" type="file" id="fXML" accept="text/xml">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="formFile" class="form-label">XML</label>
-                        <input class="form-control" type="file" id="fXML" accept="text/xml">
-                    </div>
+                    
                 </div>
             </div>
             <div class="modal-footer">
@@ -373,7 +376,8 @@
     <script>
         var url_ListRendiciones = "@Url.Content("~/")" + "Rendicion/ListRendiciones";
         var url_GetRendicion = "@Url.Content("~/")" + "Rendicion/GetRendicion";
-        var url_InserRendicion = "@Url.Content("~/")" + "Rendicion/InserRendicion";
+        var url_InsertRendicion = "@Url.Content("~/")" + "Rendicion/InsertRendicion";
+        var url_UpdateAreaRendicion = "@Url.Content("~/")" + "Rendicion/UpdateAreaRendicion";
         var url_ListCajasCombo = "@Url.Content("~/")" + "Box/ListCajasCombo";
         var url_GetRequisiciones = "@Url.Content("~/")" + "Rendicion/GetRequisiciones";
         var url_DeleteRendicion = "@Url.Content("~/")" + "Rendicion/DeleteRendicion";
@@ -382,6 +386,7 @@
         var url_ListSustentoById = "@Url.Content("~/")" + "Rendicion/ListSustentoById";
         var url_InsertSustento = "@Url.Content("~/")" + "Rendicion/InsertSustento";
         var url_DeleteSustento = "@Url.Content("~/")" + "Rendicion/DeleteSustento";
+        var url_VerPDFFactura = "@Url.Content("~/")" + "Rendicion/VerPDFFactura";
     </script>
     <script src="@Url.Content("~/Scripts/rendicion.js")"></script>
 }

@@ -316,6 +316,7 @@ namespace FrontEnd.Web.Controllers
 
                 var url = api + "Rendicion/listSustentoById";
                 httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + UsuarioLogueado.Token);
+
                 var result = await httpClient.PostAsync(url, content);
 
                 if (!result.IsSuccessStatusCode)
@@ -352,14 +353,16 @@ namespace FrontEnd.Web.Controllers
                     Directory.CreateDirectory(newPath);
                 }
 
-                if (Request.Form["tipo"] == "Factura")
-                {
+                //if (Request.Form["tipo"] == "Factura")
+                //{
 
                     if (Request.Form["id"] != "")
                     {
                         obj.id = Convert.ToInt32(Request.Form["id"]);
                     }
+
                     obj.descripcion = Request.Form["descripcion"];
+                    obj.centroCosto = Request.Form["centroCosto"];
                     obj.tipo = Request.Form["tipo"];
                     obj.ruc = Request.Form["ruc"];
                     obj.razonSocial = Request.Form["razonSocial"];
@@ -367,54 +370,56 @@ namespace FrontEnd.Web.Controllers
                     obj.importe = Convert.ToDecimal(Request.Form["importe"].ToString());
                     obj.fechaDoc = Convert.ToDateTime(Request.Form["fechaDoc"]);
 
-                    IFormFile filePDF;
-                    IFormFile fileXML;
-                    if (Request.Form.Files.Count == 1)
+                    if (Request.Form["id"] == "")
                     {
-                        filePDF = Request.Form.Files[0];
-
-                        if (filePDF.Length > 0)
+                        IFormFile filePDF;
+                        IFormFile fileXML;
+                        if (Request.Form.Files.Count == 1)
                         {
-                            string sFileExtension = Path.GetExtension(filePDF.FileName).ToLower();
-                            obj.filePDF = "FAC_" + obj.nroDoc + "_" + Request.Form["codigo"] + sFileExtension;
-                            string fullPath = Path.Combine(newPath, obj.filePDF);
-                            using (var stream = new FileStream(fullPath, FileMode.Create))
+                            filePDF = Request.Form.Files[0];
+
+                            if (filePDF.Length > 0)
                             {
-                                filePDF.CopyTo(stream);
+                                string sFileExtension = Path.GetExtension(filePDF.FileName).ToLower();
+                                obj.filePDF = "FAC_" + obj.nroDoc + "_" + Request.Form["codigo"] + sFileExtension;
+                                string fullPath = Path.Combine(newPath, obj.filePDF);
+                                using (var stream = new FileStream(fullPath, FileMode.Create))
+                                {
+                                    filePDF.CopyTo(stream);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            filePDF = Request.Form.Files[0];
+                            fileXML = Request.Form.Files[1];
+
+                            if (filePDF.Length > 0)
+                            {
+                                string sFileExtension = Path.GetExtension(filePDF.FileName).ToLower();
+
+                                obj.filePDF = "FAC_" + obj.nroDoc + "_" + Request.Form["codigo"] + sFileExtension;
+
+                                string fullPath = Path.Combine(newPath, obj.filePDF);
+                                using (var stream = new FileStream(fullPath, FileMode.Create))
+                                {
+                                    filePDF.CopyTo(stream);
+                                }
+                            }
+
+                            if (fileXML.Length > 0)
+                            {
+                                string sFileExtension = Path.GetExtension(fileXML.FileName).ToLower();
+                                obj.fileXML = "XML_" + obj.nroDoc + "_" + Request.Form["codigo"] + sFileExtension;
+                                string fullPath = Path.Combine(newPath, obj.fileXML);
+                                using (var stream = new FileStream(fullPath, FileMode.Create))
+                                {
+                                    fileXML.CopyTo(stream);
+                                }
                             }
                         }
                     }
-                    else
-                    {
-                        filePDF = Request.Form.Files[0];
-                        fileXML = Request.Form.Files[1];
-
-                        if (filePDF.Length > 0)
-                        {
-                            string sFileExtension = Path.GetExtension(filePDF.FileName).ToLower();
-
-                            obj.filePDF = "FAC_" + obj.nroDoc + "_" + Request.Form["codigo"] + sFileExtension;
-
-                            string fullPath = Path.Combine(newPath, obj.filePDF);
-                            using (var stream = new FileStream(fullPath, FileMode.Create))
-                            {
-                                filePDF.CopyTo(stream);
-                            }
-                        }
-
-                        if (fileXML.Length > 0)
-                        {
-                            string sFileExtension = Path.GetExtension(fileXML.FileName).ToLower();
-                            obj.fileXML = "XML_" + obj.nroDoc + "_" + Request.Form["codigo"] + sFileExtension;
-                            string fullPath = Path.Combine(newPath, obj.fileXML);
-                            using (var stream = new FileStream(fullPath, FileMode.Create))
-                            {
-                                fileXML.CopyTo(stream);
-                            }
-                        }
-                    }
-
-                } 
+                //} 
 
                 var api = _configuration["Api:root"];
                 HttpClientHandler clientHandler = new HttpClientHandler();
@@ -447,7 +452,8 @@ namespace FrontEnd.Web.Controllers
 
         public IActionResult VerPDFFactura([FromBody] PdfFactura obj)
         {
-            var path = "C://ADGRendicion" + "/" + obj.codigo + "/" + obj.pdf;
+            var root = _configuration["RutaSustento:ruta"];
+            var path = root + "/" + obj.codigo + "/" + obj.pdf;
 
             var stream = new FileStream(path, FileMode.Open);
             return File(stream, "application/pdf", obj.pdf);
@@ -477,6 +483,20 @@ namespace FrontEnd.Web.Controllers
                 if (!result.IsSuccessStatusCode)
                 {
                     throw new ArgumentException("No se encontraron registros");
+                }
+
+                var path = _configuration["RutaSustento:ruta"] + "/" + obj.codigo;
+                string[] pdfList = Directory.GetFiles(path, obj.filePDF);
+                string[] xmlList = Directory.GetFiles(path, obj.fileXML);
+
+                foreach (string f in pdfList)
+                {
+                    System.IO.File.Delete(f);
+                }
+
+                foreach (string f in xmlList)
+                {
+                    System.IO.File.Delete(f);
                 }
 
                 var data = await result.Content.ReadAsStringAsync();

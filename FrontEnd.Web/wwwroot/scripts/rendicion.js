@@ -43,7 +43,7 @@ $(document).ready(function () {
                     var tipo = $(this).attr('dataTipo');
                     var codigo = $(this).attr('dataCodigo');
                     var fecha = new Date($(this).attr('dataDate'));
-
+                    console.log(fecha);
                     $.ajax({
                         cache: false,
                         url: url_GetRendicion,
@@ -67,7 +67,7 @@ $(document).ready(function () {
                             $('#txtMotivo').val('Informe de Caja Chica');
                             $('#txtNroReporte').val(codigo);
                             $('#txtFecha').val(dsh.dateToText(fecha));
-                            $('#txtPeriodo').val(dsh.obtenerNombreMes(fecha.getMonth()).toUpperCase() + ' ' + fecha.getFullYear());
+                            $('#txtPeriodo').val(dsh.obtenerNombreMes(fecha.getMonth()+1).toUpperCase() + ' ' + fecha.getFullYear());
 
                             dsh.ListSustentos(id);
 
@@ -113,6 +113,12 @@ $(document).ready(function () {
                 
             });
 
+            
+            $(document).on('click', '#chkTipoDoc', function () {
+
+                $('#lblTipoDoc').text()
+            });
+
             $(document).on('blur', '#txtArea', function () {
                 dsh.UpdateAreaRendicion();
             });
@@ -153,10 +159,9 @@ $(document).ready(function () {
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     inputOptions: {
-                            0: 'Factura',
-                            1: 'Voucher de Movilidad',
-                            2: 'Requisición de Fondos',
-                            3: 'Otros'
+                        0: 'Factura | Boleta',
+                        1: 'Voucher de Movilidad',
+                        2: 'Otros'
                     },
                     inputPlaceholder: 'Seleccion Tipo de Sustento',
                     showCancelButton: true,
@@ -171,23 +176,33 @@ $(document).ready(function () {
 
                                     $('#div_adjuntosSCFactura').css('display', '');
 
-                                    $('#titleModalSCFactura').text('Factura Nueva');
+                                    $('#titleModalSCFactura').text('Nuevo Sustento');
+                                    $('#txtIdSCFactura').val('');
                                     $('#mSCFactura').modal('show');
                                     break;
                                 case '1':
                                     console.log(value);
                                     resolve();
-                                    $('#titleModalSCVoucher').text('');
-                                    $('#mSCVoucher').modal('show');
+                                    dsh.limpiarmSCBoleta();
+
+                                    $('#div_adjuntosSCBoleta').css('display', '');
+
+                                    $('#titleModalSCBoleta').text('Boleta Nueva');
+                                    $('#txtIdSCBoleta').val('');
+                                    $('#mSCBoleta').modal('show');
                                     break;
                                 case '2':
                                     console.log(value);
                                     resolve();
+                                    dsh.limpiarmSCOtro();
+
+                                    $('#div_adjuntosSCOtro').css('display', '');
+
+                                    $('#titleModalSCOtro').text('Nuevo Sustento');
+                                    $('#txtIdSCOtro').val('');
+                                    $('#mSCOtro').modal('show');
                                     break;
-                                case '3':
-                                    console.log(value);
-                                    resolve();
-                                    break;
+
                                 default:
                                     resolve('Debes Seleccionar una opción');
                                     break;
@@ -232,58 +247,132 @@ $(document).ready(function () {
             });
 
             $(document).on('click', '#btnAgregarSCFactura', function () {
-                if (dsh.validarSCFactura()) {
-                    $('#spinner_loading').show();
-                    dsh.InsertSustento('Factura', $('#txtCodigoRendicionSC').val());
+                if ($('#btnAgregarSCFactura').text() == 'Agregar') {
+                    if (dsh.validarSCFactura()) {
+                        $('#spinner_loading').show();
+                        let tipo = '';
+                        if (document.getElementById("rFactura").checked == true) {
+                            tipo = 'Factura';
+                        }
+                        if (document.getElementById("rBoleta").checked == true) {
+                            tipo = 'Boleta';
+                        }
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                    }
+                }
+
+                if ($('#btnAgregarSCFactura').text() == 'Modificar') {
+                    if (dsh.validarSCFacturaSinFiles()) {
+                        $('#spinner_loading').show();
+                        let tipo = '';
+                        if (document.getElementById("rFactura").checked == true) {
+                            tipo = 'Factura';
+                        }
+                        if (document.getElementById("rBoleta").checked == true) {
+                            tipo = 'Boleta';
+                        }
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                    }
                 }
             });
 
-            $(document).on('click', '.verPDFSCFactura', function () {
+            $(document).on('click', '#btnAgregarSCOtro', function () {
+
+                let tipo = 'Otro';
+                if ($('#btnAgregarSCOtro').text() == 'Agregar') {
+                    if (dsh.validarSCOtro()) {
+                        $('#spinner_loading').show();
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                    }
+                }
+
+                if ($('#btnAgregarSCOtro').text() == 'Modificar') {
+                    if (dsh.validarSCOtroSinFiles()) {
+                        $('#spinner_loading').show();
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                    }
+                }
+            });
+
+            $(document).on('click', '.verPDFSC', function () {
                 let codigo = $(this).attr('dataCodigo');
                 let pdf = $(this).attr('dataFilePDF');
                 dsh.verPdfFactura(codigo, pdf);
             });
 
-            $(document).on('click', '.modificarSCFactura', function () {
+            $(document).on('click', '.modificarSC', function () {
                 let id = $(this).attr('dataId');
                 let tipo = $(this).attr('dataTipo');
-                switch (tipo) {
-                    case 'Factura':
-                        $.ajax({
-                            cache: false,
-                            url: url_ListSustentoById,
-                            type: "POST",
-                            data: {
-                                id: id,
-                            },
-                            success: function (data) {
-                                var ls = JSON.parse(data.value).data;
-                                dsh.limpiarmSCFactura();
-                                $('#txtDescripcionSCFactura').val(ls[0].descripcion);
-                                $('#txtRucSCFactura').val(ls[0].ruc);
-                                $('#txtEmpresaSCFactura').val(ls[0].razonSocial);
-                                $('#txtNroFacturaSCFactura').val(ls[0].nroDoc);
-                                $('#txtMontoSCFactura').val(ls[0].importe);
-                                $('#txtFechaSCFactura').val(dsh.formatDate(new Date(ls[0].fechaDoc)));
 
-                                $('#div_adjuntosSCFactura').css('display', 'none');
+                if (tipo == 'Factura' || tipo == 'Boleta') {
+                    $.ajax({
+                        cache: false,
+                        url: url_ListSustentoById,
+                        type: "POST",
+                        data: {
+                            id: id,
+                        },
+                        success: function (data) {
+                            var ls = JSON.parse(data.value).data;
+                            dsh.limpiarmSCFactura();
+                            $('#txtIdSCFactura').val(id);
+                            $('#txtDescripcionSCFactura').val(ls[0].descripcion);
+                            $('#txtCentroCostoSCFactura').val(ls[0].centroCosto);
+                            $('#txtRucSCFactura').val(ls[0].ruc);
+                            $('#txtEmpresaSCFactura').val(ls[0].razonSocial);
+                            $('#txtNroFacturaSCFactura').val(ls[0].nroDoc);
+                            $('#txtMontoSCFactura').val(ls[0].importe);
+                            $('#txtFechaSCFactura').val(dsh.formatDate(new Date(ls[0].fechaDoc)));
 
-                                $('#mSCFactura').modal('show');
-                                $('#spinner_loading').hide();
-                            },
-                            error: function (request) {
-                            }
-                        });
-
-                        dsh.limpiarmSCFactura();
-                        $('#titleModalSCFactura').text('Editar Sustento');
-                        $('#mSCFactura').modal('show');
-                        break;
-                    case 'Voucher':
-
-                        break;
-
+                            $('#div_adjuntosSCFactura').css('display', 'none');
+                            $('#btnAgregarSCFactura').text('Modificar');
+                            $('#titleModalSCFactura').text('Editar Sustento');
+                            $('#mSCFactura').modal('show');
+                            $('#spinner_loading').hide();
+                        },
+                        error: function (request) {
+                        }
+                    });
                 }
+                if (tipo == 'Otro') {
+                    $.ajax({
+                        cache: false,
+                        url: url_ListSustentoById,
+                        type: "POST",
+                        data: {
+                            id: id,
+                        },
+                        success: function (data) {
+                            var ls = JSON.parse(data.value).data;
+                            dsh.limpiarmSCOtro();
+                            $('#txtIdSCFactura').val(id);
+                            $('#txtDescripcionSCOtro').val(ls[0].descripcion);
+                            $('#txtCentroCostoSCOtro').val(ls[0].centroCosto);
+                            $('#txtNroFacturaSCOtro').val(ls[0].nroDoc);
+                            $('#txtMontoSCOtro').val(ls[0].importe);
+                            $('#txtFechaSCOtro').val(dsh.formatDate(new Date(ls[0].fechaDoc)));
+
+                            $('#div_adjuntosSCOtro').css('display', 'none');
+                            $('#btnAgregarSCOtro').text('Modificar');
+                            $('#titleModalSCOtro').text('Editar Sustento');
+                            $('#mSCOtro').modal('show');
+                            $('#spinner_loading').hide();
+                        },
+                        error: function (request) {
+                        }
+                    });
+                }
+            });
+
+            $(document).on('click', '.borrarSC', function () {
+                let id = $(this).attr('dataId');
+                let codigo = $(this).attr('dataCodigo');
+                let tipo = $(this).attr('dataTipo');
+                let pdf = $(this).attr('dataFilePDF');
+                let xml = $(this).attr('dataFileXML');
+
+                dsh.DeleteSustento(id, pdf, xml, codigo);
+                
             });
         },
 
@@ -291,6 +380,10 @@ $(document).ready(function () {
             $('#txtDescripcionSCFactura').val('');
             $("#txtDescripcionSCFactura").removeClass("parsley-success");
             $("#txtDescripcionSCFactura").removeClass("parsley-error");
+
+            $('#txtCentroCostoSCFactura').val('');
+            $("#txtCentroCostoSCFactura").removeClass("parsley-success");
+            $("#txtCentroCostoSCFactura").removeClass("parsley-error");
 
             $('#txtRucSCFactura').val('');
             $("#txtRucSCFactura").removeClass("parsley-success");
@@ -317,6 +410,32 @@ $(document).ready(function () {
             $("#fPDF").removeClass("parsley-error");
         },
 
+        limpiarmSCOtro() {
+            $('#txtDescripcionSCOtro').val('');
+            $("#txtDescripcionSCOtro").removeClass("parsley-success");
+            $("#txtDescripcionSCOtro").removeClass("parsley-error");
+
+            $('#txtCentroCostoSCOtro').val('');
+            $("#txtCentroCostoSCOtro").removeClass("parsley-success");
+            $("#txtCentroCostoSCOtro").removeClass("parsley-error");
+
+            $('#txtNroFacturaSCOtro').val('');
+            $("#txtNroFacturaSCOtro").removeClass("parsley-success");
+            $("#txtNroFacturaSCOtro").removeClass("parsley-error");
+
+            $('#txtMontoSCOtro').val('');
+            $("#txtMontoSCOtro").removeClass("parsley-success");
+            $("#txtMontoSCOtro").removeClass("parsley-error");
+
+            $('#txtFechaSCOtro').val('');
+            $("#txtFechaSCOtro").removeClass("parsley-success");
+            $("#txtFechaSCOtro").removeClass("parsley-error");
+
+            $('#fPDFOtro').val('');
+            $("#fPDFOtro").removeClass("parsley-success");
+            $("#fPDFOtro").removeClass("parsley-error");
+        },
+
         validarSCFactura() {
 
             var val = 0;
@@ -331,6 +450,16 @@ $(document).ready(function () {
                 $("#txtDescripcionSCFactura").addClass("parsley-success");
             }
 
+            if ($('#txtCentroCostoSCFactura').val() == '') {
+                $("#txtCentroCostoSCFactura").removeClass("parsley-success");
+                $("#txtCentroCostoSCFactura").removeClass("parsley-error");
+                $("#txtCentroCostoSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtCentroCostoSCFactura").removeClass("parsley-success");
+                $("#txtCentroCostoSCFactura").removeClass("parsley-error");
+                $("#txtCentroCostoSCFactura").addClass("parsley-success");
+            }
 
             if ($("#txtRucSCFactura").val() == '') {
                 $("#txtRucSCFactura").removeClass("parsley-success");
@@ -415,6 +544,234 @@ $(document).ready(function () {
             }
         },
 
+        validarSCFacturaSinFiles() {
+
+            var val = 0;
+            if ($('#txtDescripcionSCFactura').val() == '') {
+                $("#txtDescripcionSCFactura").removeClass("parsley-success");
+                $("#txtDescripcionSCFactura").removeClass("parsley-error");
+                $("#txtDescripcionSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtDescripcionSCFactura").removeClass("parsley-success");
+                $("#txtDescripcionSCFactura").removeClass("parsley-error");
+                $("#txtDescripcionSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtCentroCostoSCFactura').val() == '') {
+                $("#txtCentroCostoSCFactura").removeClass("parsley-success");
+                $("#txtCentroCostoSCFactura").removeClass("parsley-error");
+                $("#txtCentroCostoSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtCentroCostoSCFactura").removeClass("parsley-success");
+                $("#txtCentroCostoSCFactura").removeClass("parsley-error");
+                $("#txtCentroCostoSCFactura").addClass("parsley-success");
+            }
+
+            if ($("#txtRucSCFactura").val() == '') {
+                $("#txtRucSCFactura").removeClass("parsley-success");
+                $("#txtRucSCFactura").removeClass("parsley-error");
+                $("#txtRucSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtRucSCFactura").removeClass("parsley-success");
+                $("#txtRucSCFactura").removeClass("parsley-error");
+                $("#txtRucSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtEmpresaSCFactura').val() == '') {
+                $("#txtEmpresaSCFactura").removeClass("parsley-success");
+                $("#txtEmpresaSCFactura").removeClass("parsley-error");
+                $("#txtEmpresaSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtEmpresaSCFactura").removeClass("parsley-success");
+                $("#txtEmpresaSCFactura").removeClass("parsley-error");
+                $("#txtEmpresaSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtNroFacturaSCFactura').val() == '') {
+                $("#txtNroFacturaSCFactura").removeClass("parsley-success");
+                $("#txtNroFacturaSCFactura").removeClass("parsley-error");
+                $("#txtNroFacturaSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtNroFacturaSCFactura").removeClass("parsley-success");
+                $("#txtNroFacturaSCFactura").removeClass("parsley-error");
+                $("#txtNroFacturaSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtMontoSCFactura').val() == '') {
+                $("#txtMontoSCFactura").removeClass("parsley-success");
+                $("#txtMontoSCFactura").removeClass("parsley-error");
+                $("#txtMontoSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtMontoSCFactura").removeClass("parsley-success");
+                $("#txtMontoSCFactura").removeClass("parsley-error");
+                $("#txtMontoSCFactura").addClass("parsley-success");
+            }
+
+            if ($('#txtFechaSCFactura').val() == '') {
+                $("#txtFechaSCFactura").removeClass("parsley-success");
+                $("#txtFechaSCFactura").removeClass("parsley-error");
+                $("#txtFechaSCFactura").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtFechaSCFactura").removeClass("parsley-success");
+                $("#txtFechaSCFactura").removeClass("parsley-error");
+                $("#txtFechaSCFactura").addClass("parsley-success");
+            }
+
+            if (val == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
+        validarSCOtro() {
+
+            var val = 0;
+            if ($('#txtDescripcionSCOtro').val() == '') {
+                $("#txtDescripcionSCOtro").removeClass("parsley-success");
+                $("#txtDescripcionSCOtro").removeClass("parsley-error");
+                $("#txtDescripcionSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtDescripcionSCOtro").removeClass("parsley-success");
+                $("#txtDescripcionSCOtro").removeClass("parsley-error");
+                $("#txtDescripcionSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtCentroCostoSCOtro').val() == '') {
+                $("#txtCentroCostoSCOtro").removeClass("parsley-success");
+                $("#txtCentroCostoSCOtro").removeClass("parsley-error");
+                $("#txtCentroCostoSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtCentroCostoSCOtro").removeClass("parsley-success");
+                $("#txtCentroCostoSCOtro").removeClass("parsley-error");
+                $("#txtCentroCostoSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtNroFacturaSCOtro').val() == '') {
+                $("#txtNroFacturaSCOtro").removeClass("parsley-success");
+                $("#txtNroFacturaSCOtro").removeClass("parsley-error");
+                $("#txtNroFacturaSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtNroFacturaSCOtro").removeClass("parsley-success");
+                $("#txtNroFacturaSCOtro").removeClass("parsley-error");
+                $("#txtNroFacturaSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtMontoSCOtro').val() == '') {
+                $("#txtMontoSCOtro").removeClass("parsley-success");
+                $("#txtMontoSCOtro").removeClass("parsley-error");
+                $("#txtMontoSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtMontoSCOtro").removeClass("parsley-success");
+                $("#txtMontoSCOtro").removeClass("parsley-error");
+                $("#txtMontoSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtFechaSCOtro').val() == '') {
+                $("#txtFechaSCOtro").removeClass("parsley-success");
+                $("#txtFechaSCOtro").removeClass("parsley-error");
+                $("#txtFechaSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtFechaSCOtro").removeClass("parsley-success");
+                $("#txtFechaSCOtro").removeClass("parsley-error");
+                $("#txtFechaSCOtro").addClass("parsley-success");
+            }
+
+            if ($("#fPDFOtro").get(0).files.length == 0 || $("#fPDFOtro").get(0).files[0].size == 0) {
+                $("#fPDFOtro").removeClass("parsley-success");
+                $("#fPDFOtro").removeClass("parsley-error");
+                $("#fPDFOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#fPDFOtro").removeClass("parsley-success");
+                $("#fPDFOtro").removeClass("parsley-error");
+                $("#fPDFOtro").addClass("parsley-success");
+            }
+
+            if (val == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
+        validarSCOtroSinFiles() {
+
+            var val = 0;
+            if ($('#txtDescripcionSCOtro').val() == '') {
+                $("#txtDescripcionSCOtro").removeClass("parsley-success");
+                $("#txtDescripcionSCOtro").removeClass("parsley-error");
+                $("#txtDescripcionSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtDescripcionSCOtro").removeClass("parsley-success");
+                $("#txtDescripcionSCOtro").removeClass("parsley-error");
+                $("#txtDescripcionSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtCentroCostoSCOtro').val() == '') {
+                $("#txtCentroCostoSCOtro").removeClass("parsley-success");
+                $("#txtCentroCostoSCOtro").removeClass("parsley-error");
+                $("#txtCentroCostoSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtCentroCostoSCOtro").removeClass("parsley-success");
+                $("#txtCentroCostoSCOtro").removeClass("parsley-error");
+                $("#txtCentroCostoSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtNroFacturaSCOtro').val() == '') {
+                $("#txtNroFacturaSCOtro").removeClass("parsley-success");
+                $("#txtNroFacturaSCOtro").removeClass("parsley-error");
+                $("#txtNroFacturaSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtNroFacturaSCOtro").removeClass("parsley-success");
+                $("#txtNroFacturaSCOtro").removeClass("parsley-error");
+                $("#txtNroFacturaSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtMontoSCOtro').val() == '') {
+                $("#txtMontoSCOtro").removeClass("parsley-success");
+                $("#txtMontoSCOtro").removeClass("parsley-error");
+                $("#txtMontoSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtMontoSCOtro").removeClass("parsley-success");
+                $("#txtMontoSCOtro").removeClass("parsley-error");
+                $("#txtMontoSCOtro").addClass("parsley-success");
+            }
+
+            if ($('#txtFechaSCOtro').val() == '') {
+                $("#txtFechaSCOtro").removeClass("parsley-success");
+                $("#txtFechaSCOtro").removeClass("parsley-error");
+                $("#txtFechaSCOtro").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtFechaSCOtro").removeClass("parsley-success");
+                $("#txtFechaSCOtro").removeClass("parsley-error");
+                $("#txtFechaSCOtro").addClass("parsley-success");
+            }
+
+            if (val == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
         sumarDias(fecha, dias) {
             fecha.setDate(fecha.getDate() + dias);
             return fecha;
@@ -432,11 +789,19 @@ $(document).ready(function () {
             ].join('-');
         },
 
+        formatDateSlash(date) {
+            return [
+                dsh.padTo2Digits(date.getDate()),
+                dsh.padTo2Digits(date.getMonth() + 1),
+                date.getFullYear(),
+            ].join('/');
+        },
+
         dateToText(date) {
             var primerDia = new Date(date.getFullYear(), date.getMonth(), 1);
             var ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-            return dsh.padTo2Digits(primerDia.getDate()) + ' AL ' + dsh.padTo2Digits(ultimoDia.getDate()) + '/' + dsh.padTo2Digits(ultimoDia.getMonth()) + '/' + ultimoDia.getFullYear();
+            return dsh.padTo2Digits(primerDia.getDate()) + ' AL ' + dsh.formatDateSlash(new Date());
         },
 
         obtenerNombreMes(numero) {
@@ -849,21 +1214,56 @@ $(document).ready(function () {
 
                         var dataSet = [];
                         for (var i = 0; i < ls.length; i++) {
-                            
+                            let tipo = '';
+                            let ruc = '';
+                            let nroDoc = '';
+                            let importe = '';
+                            let fechaDoc = '';
+
+                            switch (ls[i].tipo) {
+                                case 'Factura':
+                                    tipo = 'FA';
+                                    ruc = ls[i].ruc;
+                                    nroDoc = ls[i].nroDoc;
+                                    fechaDoc = dsh.formatDate(new Date(ls[i].fechaDoc));
+                                    importe = dsh.soles(ls[i].importe);
+                                    break;
+                                case 'Boleta':
+                                    tipo = 'BO';
+                                    ruc = ls[i].ruc;
+                                    nroDoc = ls[i].nroDoc;
+                                    fechaDoc = dsh.formatDate(new Date(ls[i].fechaDoc));
+                                    importe = dsh.soles(ls[i].importe);
+                                    break;
+                                case 'Voucher':
+                                    tipo = 'VR'
+                                    ruc = ls[i].ruc;
+                                    nroDoc = ls[i].nroVoucher;
+                                    fechaDoc = dsh.formatDate(new Date(ls[i].fechaVoucher));
+                                    importe = dsh.soles(ls[i].importeVoucher);
+                                    break;
+                                case 'Otro':
+                                    tipo = 'OTR'
+                                    //ruc = ls[i].ruc;
+                                    nroDoc = ls[i].nroDoc;
+                                    fechaDoc = dsh.formatDate(new Date(ls[i].fechaDoc));
+                                    importe = dsh.soles(ls[i].importe);
+                                    break;
+                            }
 
                             dataSet.push([
                                 ls[i].id,
-                                '',
-                                ls[i].tipo == 'Factura' ? ls[i].fechaDoc : fechaVoucher,
-                                ls[i].tipo == 'Factura' ? 'FA' : 'VR',
-                                ls[i].tipo == 'Factura' ? ls[i].ruc : '',
-                                ls[i].tipo == 'Factura' ? ls[i].nroDoc : ls[i].nroVoucher,
+                                ls[i].centroCosto,
+                                fechaDoc,
+                                tipo,
+                                ruc,
+                                nroDoc,
                                 ls[i].descripcion,
-                                ls[i].tipo == 'Factura' ? dsh.soles(ls[i].importe) : dsh.soles(ls[i].importeVoucher),
+                                importe,
                                 '<div class="fa-2x">' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Ver PDF" class="btn btn-outline-danger btn-icon verPDFSCFactura" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '"><i class="fas fa-file-pdf"></i></button> ' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" class="btn btn-outline-primary btn-icon modificarSCFactura"><i class="ion ion-md-create"></i></button> ' +
-                                    '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" class="btn btn-outline-danger btn-icon borrarSCFactura"><i class="ion ion-md-trash"></i></button>   ' +
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Ver PDF" class="btn btn-outline-danger btn-icon verPDFSC" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '"><i class="fas fa-file-pdf"></i></button> ' +
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" class="btn btn-outline-primary btn-icon modificarSC"><i class="ion ion-md-create"></i></button> ' +
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '" dataFileXML="' + ls[i].fileXML + '"class="btn btn-outline-danger btn-icon borrarSC"><i class="ion ion-md-trash"></i></button>   ' +
                                 '</div>'
                             ]);
                         }
@@ -948,27 +1348,42 @@ $(document).ready(function () {
             fdata.append('idRendicion', idRendicion);
             fdata.append('tipo', tipo);
             fdata.append('codigo', codigo);
-            switch (tipo) {
-                case 'Factura':
-                    fdata.append('id', $('#txtIdSCFactura').val());
-                    fdata.append('descripcion', $('#txtDescripcionSCFactura').val());
-                    fdata.append('ruc', $('#txtRucSCFactura').val());
-                    fdata.append('razonSocial', $('#txtEmpresaSCFactura').val());
-                    fdata.append('nroDoc', $('#txtNroFacturaSCFactura').val());
-                    fdata.append('fechaDoc', $('#txtFechaSCFactura').val());
-                    fdata.append('importe', $('#txtMontoSCFactura').val());
 
+            if (tipo == 'Factura' || tipo == 'Boleta') {
+                fdata.append('id', $('#txtIdSCFactura').val());
+                fdata.append('descripcion', $('#txtDescripcionSCFactura').val());
+                fdata.append('centroCosto', $('#txtCentroCostoSCFactura').val());
+                fdata.append('ruc', $('#txtRucSCFactura').val());
+                fdata.append('razonSocial', $('#txtEmpresaSCFactura').val());
+                fdata.append('nroDoc', $('#txtNroFacturaSCFactura').val());
+                fdata.append('fechaDoc', $('#txtFechaSCFactura').val());
+                fdata.append('importe', $('#txtMontoSCFactura').val());
+
+                if ($('#txtIdSCFactura').val() == '' || $('#txtIdSCFactura').val() == null) {
                     var filePDF = $("#fPDF").get(0).files;
                     var fileXML = $("#fXML").get(0).files;
-                    
+
                     fdata.append(filePDF[0].name, filePDF[0]);
 
                     if (fileXML.length != 0) {
                         fdata.append(fileXML[0].name, fileXML[0]);
                     }
-                    break;
+                }
             }
-                
+
+            if (tipo == 'Otro') {
+                fdata.append('id', $('#txtIdSCOtro').val());
+                fdata.append('descripcion', $('#txtDescripcionSCOtro').val());
+                fdata.append('centroCosto', $('#txtCentroCostoSCOtro').val());
+                fdata.append('nroDoc', $('#txtNroFacturaSCOtro').val());
+                fdata.append('fechaDoc', $('#txtFechaSCOtro').val());
+                fdata.append('importe', $('#txtMontoSCOtro').val());
+
+                if ($('#txtIdSCOtro').val() == '' || $('#txtIdSCOtro').val() == null) {
+                    var filePDF = $("#fPDFOtro").get(0).files;
+                    fdata.append(filePDF[0].name, filePDF[0]);
+                }
+            }
 
             $.ajax({
                 type: "POST",
@@ -991,15 +1406,21 @@ $(document).ready(function () {
                             text: 'Se guardó correctamente!',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                $('#mSCFactura').modal('hide');
-                                dsh.ListSustentos(idRendicion);
-                                $('#spinner_loading').hide();
+
+                                if (tipo == 'Factura' || tipo == 'Boleta') {
+                                    $('#mSCFactura').modal('hide');
+                                    dsh.ListSustentos(idRendicion);
+                                    $('#spinner_loading').hide();
+                                }
+
+                                if (tipo == 'Otro') {
+                                    $('#mSCOtro').modal('hide');
+                                    dsh.ListSustentos(idRendicion);
+                                    $('#spinner_loading').hide();
+                                }
                             }
                         })
                     }
-                    
-
-                    
                 },
                 error: function () {
                     console.log("Error");
@@ -1007,18 +1428,23 @@ $(document).ready(function () {
             });
         },
 
-        DeleteSustento(id) {
+        DeleteSustento(id,pdf,xml,codigo) {
             
             $.ajax({
                 type: "POST",
-                url: url_InsertSustento,
+                url: url_DeleteSustento,
                 //beforeSend: function (xhr) {
                 //    xhr.setRequestHeader("XSRF-TOKEN",
                 //        $('input:hidden[name="__RequestVerificationToken"]').val());
                 //},
-                data: fdata,
-                contentType: false,
-                processData: false,
+                data: {
+                    id: id,
+                    filePDF: pdf,
+                    fileXML: xml,
+                    codigo: codigo
+                },
+                //contentType: false,
+                //processData: false,
                 success: function (data) {
                     //console.log(data);
                     if (data.status) {
@@ -1027,18 +1453,15 @@ $(document).ready(function () {
                         Swal.fire({
                             icon: 'success',
                             title: 'Éxito',
-                            text: 'Se guardó correctamente!',
+                            text: 'Se eliminó correctamente!',
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 $('#mSCFactura').modal('hide');
-                                dsh.ListSustentos(idRendicion);
+                                dsh.ListSustentos($('#txtIdRendicionSC').val());
                                 $('#spinner_loading').hide();
                             }
                         })
                     }
-
-
-
                 },
                 error: function () {
                     console.log("Error");

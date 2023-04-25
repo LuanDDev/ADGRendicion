@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="rptGenerarVoucher.rdlc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="rptGenerarVoucher.rdlc">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="dsCabeceraMovilidad.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsCabeceraMovilidad.xsd</DependentUpon>
+    </Compile>
+    <Compile Update="dsDetalleMovilidad.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsDetalleMovilidad.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="dsCabeceraMovilidad.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCabeceraMovilidad.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="dsDetalleMovilidad.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsDetalleMovilidad.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

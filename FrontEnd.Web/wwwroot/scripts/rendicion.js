@@ -1,4 +1,5 @@
-﻿
+﻿var caja;
+var sumCC;
 $(document).ready(function () {
 
     var dsh = {
@@ -43,6 +44,7 @@ $(document).ready(function () {
                     var tipo = $(this).attr('dataTipo');
                     var codigo = $(this).attr('dataCodigo');
                     var fecha = new Date($(this).attr('dataDate'));
+                    var estado = new Date($(this).attr('dataEstado'));
                     console.log(fecha);
                     $.ajax({
                         cache: false,
@@ -53,7 +55,7 @@ $(document).ready(function () {
                         },
                         success: function (data) {
                             var ls = JSON.parse(data.value).data;
-
+                            caja = [];
                             $('#txtArea').val(ls[0].area);
                             $('#txtJefeArea').val(ls[0].jefeArea);
 
@@ -69,12 +71,22 @@ $(document).ready(function () {
                             $('#txtFecha').val(dsh.dateToText(fecha));
                             $('#txtPeriodo').val(dsh.obtenerNombreMes(fecha.getMonth()+1).toUpperCase() + ' ' + fecha.getFullYear());
 
-                            dsh.ListSustentos(id);
+                            dsh.ListSustentos(id,estado);
 
                             setTimeout(() => {
                                 $('#mSustentosCaja').modal('show');
                                 $('#spinner_loading').hide();
-                            },"1000");
+                            }, "1000");
+
+                            if (estado != 0) {
+                                $('#btnEnviarRC').attr("disabled", 'disabled');
+                                $('#btnAgregarSustento').attr("disabled", 'disabled');
+                            }
+
+                            var row = { idCaja: ls[0].idCaja, caja : ls[0].caja, monto : ls[0].monto }
+                            caja.push(row);
+                            console.log(caja);
+
                         },  
                         error: function (request) {
                         }
@@ -183,13 +195,13 @@ $(document).ready(function () {
                                 case '1':
                                     console.log(value);
                                     resolve();
-                                    dsh.limpiarmSCBoleta();
+                                    dsh.GetVouchers();
 
-                                    $('#div_adjuntosSCBoleta').css('display', '');
+                                    dsh.limpiarmSCVoucher();
 
-                                    $('#titleModalSCBoleta').text('Boleta Nueva');
-                                    $('#txtIdSCBoleta').val('');
-                                    $('#mSCBoleta').modal('show');
+                                    $('#titleModalSCVoucher').text('Nuevo Sustento');
+                                    $('#txtIdSCVoucher').val('');
+                                    $('#mSCVoucher').modal('show');
                                     break;
                                 case '2':
                                     console.log(value);
@@ -257,7 +269,7 @@ $(document).ready(function () {
                         if (document.getElementById("rBoleta").checked == true) {
                             tipo = 'Boleta';
                         }
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
 
@@ -271,7 +283,7 @@ $(document).ready(function () {
                         if (document.getElementById("rBoleta").checked == true) {
                             tipo = 'Boleta';
                         }
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
             });
@@ -282,18 +294,50 @@ $(document).ready(function () {
                 if ($('#btnAgregarSCOtro').text() == 'Agregar') {
                     if (dsh.validarSCOtro()) {
                         $('#spinner_loading').show();
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
 
                 if ($('#btnAgregarSCOtro').text() == 'Modificar') {
                     if (dsh.validarSCOtroSinFiles()) {
                         $('#spinner_loading').show();
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
             });
 
+            $(document).on('click', '#btnAgregarSCVoucher', function () {
+
+                let tipo = 'Voucher';
+
+                if (dsh.validarSCVoucher()) {
+                    Swal.fire({
+                        icon: 'question',
+                        //title: 'Éxito',
+                        text: '¿Esta seguro de su elección?',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#spinner_loading').show();
+                            $.ajax({
+                                cache: false,
+                                url: url_GetFileVoucher,
+                                type: "POST",
+                                data: {
+                                    id: $('#sVouchers').val(),
+                                    codigo: $('#txtCodigoRendicionSC').val()
+                                },
+                                success: function (data) {
+                                    var ls = JSON.parse(data.value).data[0];
+                                    var filename = data.fileName;
+                                    dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(), ls, filename);
+                                },
+                                error: function (request) {
+                                }
+                            });
+                        }
+                    })
+                }
+            });
             $(document).on('click', '.verPDFSC', function () {
                 let codigo = $(this).attr('dataCodigo');
                 let pdf = $(this).attr('dataFilePDF');
@@ -362,6 +406,37 @@ $(document).ready(function () {
                         }
                     });
                 }
+
+                if (tipo == 'Voucher') {
+                    $.ajax({
+                        cache: false,
+                        url: url_ListSustentoById,
+                        type: "POST",
+                        data: {
+                            id: id,
+                        },
+                        success: function (data) {
+                            var ls = JSON.parse(data.value).data;
+                            $('#txtIdSCVoucher').val(id);
+
+                            dsh.GetVouchers();
+
+                            setTimeout(() => {
+                                $('#sVouchers').val(ls[0].voucherId);
+                                $('#txtIdSCVoucher').val(ls[0].id);
+                                $('#txtDescripcionSCVoucher').val(ls[0].descripcion);
+                                $('#txtCentroCostoSCVoucher').val(ls[0].centroCosto);
+                            }, 300);
+
+                            $('#btnAgregarSCVoucher').text('Modificar');
+                            $('#titleModalSCVoucher').text('Editar Sustento');
+                            $('#mSCVoucher').modal('show');
+                            $('#spinner_loading').hide();
+                        },
+                        error: function (request) {
+                        }
+                    });
+                }
             });
 
             $(document).on('click', '.borrarSC', function () {
@@ -373,6 +448,13 @@ $(document).ready(function () {
 
                 dsh.DeleteSustento(id, pdf, xml, codigo);
                 
+            });
+
+            $(document).on('click', '#btnEnviarRC', function () {
+
+                dsh.GetCorreoContadores();
+
+                dsh.UpdateEstadoRendicion($('#txtIdRendicionSC').val(), 1)
             });
         },
 
@@ -434,6 +516,17 @@ $(document).ready(function () {
             $('#fPDFOtro').val('');
             $("#fPDFOtro").removeClass("parsley-success");
             $("#fPDFOtro").removeClass("parsley-error");
+        },
+
+        limpiarmSCVoucher() {
+            $('#txtDescripcionSCVoucher').val('');
+            $("#txtDescripcionSCVoucher").removeClass("parsley-success");
+            $("#txtDescripcionSCVoucher").removeClass("parsley-error");
+
+            $('#txtCentroCostoSCVoucher').val('');
+            $("#txtCentroCostoSCVoucher").removeClass("parsley-success");
+            $("#txtCentroCostoSCVoucher").removeClass("parsley-error");
+
         },
 
         validarSCFactura() {
@@ -772,6 +865,49 @@ $(document).ready(function () {
             }
         },
 
+        validarSCVoucher() {
+
+            var val = 0;
+            if ($('#txtDescripcionSCVoucher').val() == '') {
+                $("#txtDescripcionSCVoucher").removeClass("parsley-success");
+                $("#txtDescripcionSCVoucher").removeClass("parsley-error");
+                $("#txtDescripcionSCVoucher").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtDescripcionSCVoucher").removeClass("parsley-success");
+                $("#txtDescripcionSCVoucher").removeClass("parsley-error");
+                $("#txtDescripcionSCVoucher").addClass("parsley-success");
+            }
+
+            if ($('#txtCentroCostoSCVoucher').val() == '') {
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-success");
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-error");
+                $("#txtCentroCostoSCVoucher").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-success");
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-error");
+                $("#txtCentroCostoSCVoucher").addClass("parsley-success");
+            }
+
+            if ($('#sVouchers').val() == '') {
+                $("#sVouchers").removeClass("parsley-success");
+                $("#sVouchers").removeClass("parsley-error");
+                $("#sVouchers").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#sVouchers").removeClass("parsley-success");
+                $("#sVouchers").removeClass("parsley-error");
+                $("#sVouchers").addClass("parsley-success");
+            }
+
+            if (val == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
         sumarDias(fecha, dias) {
             fecha.setDate(fecha.getDate() + dias);
             return fecha;
@@ -844,6 +980,44 @@ $(document).ready(function () {
 
         },
 
+        SumaTotal() {
+            
+            $('#div_table_sumSC').html('');
+
+            var htmlTableDetalle = '';
+            htmlTableDetalle += `
+                        <table id="tSumaCC" class="table-hover" style="width:100%; font-size:15px">
+                            `;
+            htmlTableDetalle += `
+                            <tbody>`;
+            htmlTableDetalle += `<tr style="vertical-align: middle;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Monto Caja Total` + `</th>
+                                <td class="text-end" style="padding: 0px;">` + dsh.soles(caja[0].monto) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+
+            htmlTableDetalle += `<tr style="vertical-align: middle;border-bottom: double;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Monto Sustentado` + `</th>
+                                <td class="text-end" style="padding: 0px; ">` + dsh.soles(sumCC) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+
+            htmlTableDetalle += `<tr style="vertical-align: middle;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Diferencia` + `</th>
+                                <td class="text-end" style="padding: 0px;">` + dsh.soles(caja[0].monto - sumCC) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+            
+            htmlTableDetalle += `
+                            </tbody>
+                        </table>`;
+            console.log(htmlTableDetalle);
+            $('#div_table_sumSC').html(htmlTableDetalle);
+        },
+
         ListRendiciones() {
             $.ajax({
                 cache: false,
@@ -874,7 +1048,16 @@ $(document).ready(function () {
                                     estado = 'Sin revisión';
                                     break;
                                 case 1:
-                                    estado = '';
+                                    estado = 'Enviado a revisión';
+                                    break;
+                                case 2:
+                                    estado = 'Rechazado';
+                                    break;
+                                case 3:
+                                    estado = 'Aprobado';
+                                    break;
+                                case 3:
+                                    estado = 'Cerrado';
                                     break;
                                 default:
                                     console.log("Invalid day of the week");
@@ -887,7 +1070,7 @@ $(document).ready(function () {
                                 ls[i].descripcion,
                                 ls[i].tipo == 'Caja' ? 'Caja : ' + ls[i].caja : 'Requisición : ' + ls[i].requisicion,
                                 estado,
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Agregar Sustentos" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataDate="' + ls[i].dateCreate + '" class="btn btn-indigo btn-xs agregarSustento"><i class="ion ion-md-apps"></i></button> ' +
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Agregar Sustentos" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataDate="' + ls[i].dateCreate + '" dataEstado="' + ls[i].estado + '" class="btn btn-indigo btn-xs agregarSustento"><i class="ion ion-md-apps"></i></button> ' +
                                 '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" class="btn btn-primary btn-xs modificar"><i class="ion ion-md-create"></i></button> ' +
                                 '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" class="btn btn-danger btn-xs borrar"><i class="ion ion-md-trash"></i></button>   '
                             ]);
@@ -1072,7 +1255,53 @@ $(document).ready(function () {
                 }
             });
         },
+        UpdateEstadoRendicion(id,estado) {
+            $.ajax({
+                cache: false,
+                url: url_UpdateEstadoRendicion,
+                type: "POST",
+                data: {
+                    id: id,
+                    estado: estado
+                },
+                success: function (data) {
+                    if (data.status) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Se envió correctamente para su revisión',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $('#mSustentosCaja').modal('hide');
+                                dsh.ListRendiciones();
+                                $('#spinner_loading').hide();
+                            }
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un problema al actualizar el estado de la rendición',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
 
+                            }
+                        })
+                    }
+                },
+                error: function (request) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un problema al actualizar el estado de la rendición',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+                        }
+                    })
+                }
+            });
+        },
         UpdateAreaRendicion() {
 
             var id = $('#txtIdRendicionSC').val();
@@ -1187,7 +1416,7 @@ $(document).ready(function () {
             });
         },
 
-        ListSustentos(id) {
+        ListSustentos(id,estado) {
             $.ajax({
                 cache: false,
                 url: url_ListSustentos,
@@ -1261,12 +1490,18 @@ $(document).ready(function () {
                                 ls[i].descripcion,
                                 importe,
                                 '<div class="fa-2x">' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Ver PDF" class="btn btn-outline-danger btn-icon verPDFSC" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '"><i class="fas fa-file-pdf"></i></button> ' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" class="btn btn-outline-primary btn-icon modificarSC"><i class="ion ion-md-create"></i></button> ' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '" dataFileXML="' + ls[i].fileXML + '"class="btn btn-outline-danger btn-icon borrarSC"><i class="ion ion-md-trash"></i></button>   ' +
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Ver PDF" class="btn btn-outline-dark btn-icon verPDFSC" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '"><i class="fas fa-file-pdf"></i></button> ' +
+                                (estado == 0 ? (tipo != 'VR' ? '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" class="btn btn-outline-primary btn-icon modificarSC"><i class="ion ion-md-create"></i></button> ' : '') : '') +
+                                (estado == 0 ? ('<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '" dataFileXML="' + ls[i].fileXML + '"class="btn btn-outline-danger btn-icon borrarSC"><i class="ion ion-md-trash"></i></button>  '):'') +
                                 '</div>'
                             ]);
                         }
+
+                        sumCC = 0
+                        for (var i = 0; i < dataSet.length; i++) {
+                            sumCC += ls[i].importe;
+                        }
+                        console.log(sumCC);
 
                         var htmlTableDetalle = '';
                         htmlTableDetalle += `
@@ -1335,6 +1570,9 @@ $(document).ready(function () {
                         });
                         $('[data-bs-toggle="tooltip"]').tooltip();
                         //$('#spinner_loading').hide();
+
+
+                        dsh.SumaTotal();
                     }
                 },
                 error: function (request) {
@@ -1342,7 +1580,7 @@ $(document).ready(function () {
             });
         },
 
-        InsertSustento(tipo,codigo) {
+        InsertSustento(tipo,codigo,ls,filename) {
             var idRendicion = $('#txtIdRendicionSC').val();
             var fdata = new FormData();
             fdata.append('idRendicion', idRendicion);
@@ -1385,6 +1623,16 @@ $(document).ready(function () {
                 }
             }
 
+            if (tipo == 'Voucher') {
+                fdata.append('id', $('#txtIdSCVoucher').val());
+                fdata.append('descripcion', $('#txtDescripcionSCVoucher').val());
+                fdata.append('centroCosto', $('#txtCentroCostoSCVoucher').val());
+                fdata.append('fechaDoc', ls.Fecha);
+                fdata.append('voucherId', ls.IdVoucher);
+                fdata.append('filePDF', filename);
+                fdata.append('importe', ls.Monto);
+            }
+
             $.ajax({
                 type: "POST",
                 url: url_InsertSustento,
@@ -1415,6 +1663,12 @@ $(document).ready(function () {
 
                                 if (tipo == 'Otro') {
                                     $('#mSCOtro').modal('hide');
+                                    dsh.ListSustentos(idRendicion);
+                                    $('#spinner_loading').hide();
+                                }
+
+                                if (tipo == 'Voucher') {
+                                    $('#mSCVoucher').modal('hide');
                                     dsh.ListSustentos(idRendicion);
                                     $('#spinner_loading').hide();
                                 }
@@ -1465,6 +1719,90 @@ $(document).ready(function () {
                 },
                 error: function () {
                     console.log("Error");
+                }
+            });
+        },
+
+        GetVouchers() {
+            $.ajax({
+                type: "POST",
+                url: url_GetVouchers,
+                data: {
+                    companyId : sessionStorage.IdEmpresa
+                },
+                success: function (data) {
+                    //console.log(data);
+                    if (data.status) {
+                        //var ls = JSON.parse(data.value).data;
+
+                        var ls = JSON.parse(data.value).data;
+
+                        $("#sVouchers").find('option').remove();
+                        for (var i = 0; i < ls.length; i++) {
+                            $("#sVouchers").append("<option value='" + ls[i].IdVoucher + "'> N°: " + ls[i].Correlativo + " | Monto: " + dsh.soles(ls[i].Monto) + " | Usuario: " + ls[i].Usuario + " | Fecha: " + dsh.formatDateSlash(new Date(ls[i].Fecha)) + " </option>");
+                        }
+
+                    }
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });
+        },
+
+        GetCorreoContadores() {
+            $.ajax({
+                type: "POST",
+                url: url_GetCorreoContadores,
+                data: {
+                    companyId : sessionStorage.IdEmpresa
+                },
+                success: function (data) {
+                    //console.log(data);
+                    if (data.status) {
+                        //var ls = JSON.parse(data.value).data;
+
+                        var ls = JSON.parse(data.value).data[0];
+
+                        dsh.SendMail(ls.correos);
+                    }
+                },
+                error: function () {
+                    console.log("Error");
+                    return false;
+                }
+            });
+        },
+
+        SendMail(para) {
+
+            var para = para;
+            var asunto = 'NOTIFICACIÓN DE NUEVA RENDICION POR REVISAR';
+            var cuerpo = `
+                <p> Estimado ` + userLogin + `.</p>
+                <p> Se ha generado una nueva rendición ` + $('#txtNroReporte').val() + ` para la empresa ` + sessionStorage.RazonSocial + ` por el monto de ` + dsh.soles(sumCC) + `</p>
+
+                <p> Atte.</p>
+                <p> <strong>ADGIntegrado - Módulo Rendiciones.</strong></p>
+            `;
+
+            $.ajax({
+                type: "POST",
+                url: url_SendMail,
+                data: {
+                    Para: para,
+                    Asunto: asunto,
+                    Cuerpo: cuerpo
+                },
+                success: function (data) {
+                    //console.log(data);
+                    if (data.status) {
+                        return true;
+                    }
+                },
+                error: function () {
+                    console.log("Error");
+                    return false;
                 }
             });
         },

@@ -19,5 +19,6 @@ namespace FrontEnd.Web.Models
         public string filePDF { get; set; }
         public string fileXML { get; set; }
         public int user { get; set; }
+        public int companyId { get; set; }
     }
 }

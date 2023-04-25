@@ -1,0 +1,35 @@
+﻿@media only screen and (max-width: 600px) {
+    .item_botonera {
+        width: 150px;
+    }
+}
+
+.swal2-html-container {
+    margin: 1em 0em 0em 0em !important;
+    padding: 0px 20px 0px 20px !important;
+}
+
+.marginPopUp {
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+}
+
+.col-form-label {
+    font-size: medium !important;
+    font-weight: bold !important;
+}
+
+table.dataTable tbody td {
+    vertical-align: middle;
+}
+
+.label-popup {
+    border-bottom: groove;
+    border-top: thin;
+    border-left: thin;
+    border-right: thin;
+}
+
+.form-control:disabled, .form-control[readonly] {
+    background-color: #e9ecef00;
+}

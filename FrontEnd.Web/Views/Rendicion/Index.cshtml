@@ -114,7 +114,7 @@
                         </div>
                         <div class="col-4">
                             <div class="row">
-                                <label class="form-label col-md-3 pt-2">Report N°</label>
+                                <label class="form-label col-md-3 pt-2">Reporte N°</label>
                                 <div class="col-md-9">
                                     <input id="txtNroReporte" type="text" class="form-control label-popup" readonly placeholder="" />
                                 </div>
@@ -150,7 +150,7 @@
                         </div>
                         <div class="col-4">
                             <div class="row">
-                                <label class="form-label col-md-3 pt-2">Jefe de Area</label>
+                                <label class="form-label col-md-3 pt-2">Jefe de Área</label>
                                 <div class="col-md-9">
                                     <input id="txtJefeArea" type="text" class="form-control label-popup" placeholder="" />
                                 </div>
@@ -185,10 +185,19 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-1">
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button id="btnAgregarSustento" class="btn btn-green" type="button">Agregar Sustento</button>
+                    <div class="row mb-1 mt-4">
+                        <div class="col-3">
+                            <label class="form-label col-md-3 pt-2">Resumen</label>
+                            <div id="div_table_sumSC">
+
+                            </div>
                         </div>
+                        <div class="col">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button id="btnAgregarSustento" class="btn btn-green" type="button">Agregar Sustento</button>
+                            </div>
+                        </div>
+                        
                     </div>
                     <hr />
                     <div class="row">
@@ -198,10 +207,10 @@
                     </div>
                 </div>
             </div>
-            @*<div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button id="btnGuardar" type="button" class="btn btn-primary">Guardar</button>
-                </div>*@
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>*@
+                <button id="btnEnviarRC" type="button" class="btn btn-primary">Enviar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -310,15 +319,39 @@
 </div>
 
 <div class="modal fade" id="mSCVoucher" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="box-shadow: 1px 1px 100px black;">
             <div class="modal-header">
                 <h5 class="modal-title" id="titleModalSCVoucher"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
+                    <input type="hidden" id="txtIdSCVoucher" />
 
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="row">
+                                <label class="form-label col-md-2 pt-2">Descripción</label>
+                                <div class="col-md-10">
+                                    <input id="txtDescripcionSCVoucher" type="text" class="form-control" placeholder="Ingrese Descripción" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-2 pt-2">CC</label>
+                                <div class="col-md-10">
+                                    <input id="txtCentroCostoSCVoucher" type="text" class="form-control" placeholder="Ingrese Centro de Costo" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-floating">
+                        <select class="form-select" id="sVouchers" aria-label="Floating label select example">
+                        </select>
+                        <label for="floatingSelect">Vouchers de Movilidad</label>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -410,6 +443,7 @@
         var url_ListRendiciones = "@Url.Content("~/")" + "Rendicion/ListRendiciones";
         var url_GetRendicion = "@Url.Content("~/")" + "Rendicion/GetRendicion";
         var url_InsertRendicion = "@Url.Content("~/")" + "Rendicion/InsertRendicion";
+        var url_UpdateEstadoRendicion = "@Url.Content("~/")" + "Rendicion/UpdateEstadoRendicion";
         var url_UpdateAreaRendicion = "@Url.Content("~/")" + "Rendicion/UpdateAreaRendicion";
         var url_ListCajasCombo = "@Url.Content("~/")" + "Box/ListCajasCombo";
         var url_GetRequisiciones = "@Url.Content("~/")" + "Rendicion/GetRequisiciones";
@@ -420,6 +454,10 @@
         var url_InsertSustento = "@Url.Content("~/")" + "Rendicion/InsertSustento";
         var url_DeleteSustento = "@Url.Content("~/")" + "Rendicion/DeleteSustento";
         var url_VerPDFFactura = "@Url.Content("~/")" + "Rendicion/VerPDFFactura";
+        var url_GetVouchers = "@Url.Content("~/")" + "Rendicion/GetVouchers";
+        var url_GetFileVoucher = "@Url.Content("~/")" + "Rendicion/GetFileVoucher";
+        var url_GetCorreoContadores = "@Url.Content("~/")" + "Rendicion/GetCorreoContadores";
+        var url_SendMail = "@Url.Content("~/")" + "Rendicion/SendMail";
     </script>
     <script src="@Url.Content("~/Scripts/rendicion.js")"></script>
 }

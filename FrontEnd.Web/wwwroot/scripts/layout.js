@@ -322,7 +322,7 @@ $(document).ready(function () {
                     $("#panelEmpresas").html('');
                     var list = JSON.parse(data.value).companies;
 
-                    var ls = list.filter(x => x.softwareId == 2);
+                    var ls = list.filter(x => x.softwareId == 11);
                     //console.log('Empresassss');
                     //console.log(ls);
 

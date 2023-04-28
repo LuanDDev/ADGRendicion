@@ -1,0 +1,87 @@
+﻿
+@{
+    ViewData["Title"] = "";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles
+{
+    <link href="~/assets/plugins/switchery/dist/switchery.min.css" rel="stylesheet" />
+    <link href="@Url.Content("~/css/rendicion.css")" rel="stylesheet" />
+}
+
+<div id="div_table">
+
+</div>
+
+
+<div class="modal fade" id="mInfo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalSustentosCaja"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col">
+                            <input type="hidden" id="txtIdRendicionSC" />
+                            <input type="hidden" id="txtCodigoRendicionSC" />
+                            <div class="row">
+                                <label class="form-label">Registro SISPAG</label>
+                            </div>
+                            <canvas style="border:1px solid grey; width:100% !important; height:100px;" id="canvasContabilidad"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <label class="form-label">Cargar sustento de transferencia (CTRL+V)</label>
+                            </div>
+                            <canvas style="border:1px solid grey; width:100% !important;" id="my_canvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button id="btnFinalizar" type="button" class="btn btn-primary">Finalizar</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="spinner_loading" class="loading" style="display:none;">Loading</div>
+
+@section Scripts
+{
+    <script src="~/assets/plugins/switchery/dist/switchery.min.js"></script>
+    <script>
+        var url_ListRendiciones = "@Url.Content("~/")" + "Rendicion/ListRendiciones";
+        var url_GetRendicion = "@Url.Content("~/")" + "Rendicion/GetRendicion";
+        var url_InsertRendicion = "@Url.Content("~/")" + "Rendicion/InsertRendicion";
+        var url_UpdateEstadoRendicion = "@Url.Content("~/")" + "Rendicion/UpdateEstadoRendicion";
+        var url_UpdateAreaRendicion = "@Url.Content("~/")" + "Rendicion/UpdateAreaRendicion";
+        var url_ListCajasCombo = "@Url.Content("~/")" + "Box/ListCajasCombo";
+        var url_GetRequisiciones = "@Url.Content("~/")" + "Rendicion/GetRequisiciones";
+        var url_DeleteRendicion = "@Url.Content("~/")" + "Rendicion/DeleteRendicion";
+        var url_ConsultaRuc = "@Url.Content("~/")" + "Rendicion/ConsultaRuc";
+        var url_ListSustentos = "@Url.Content("~/")" + "Rendicion/ListSustentos";
+        var url_ListSustentoById = "@Url.Content("~/")" + "Rendicion/ListSustentoById";
+        var url_InsertSustento = "@Url.Content("~/")" + "Rendicion/InsertSustento";
+        var url_DeleteSustento = "@Url.Content("~/")" + "Rendicion/DeleteSustento";
+        var url_VerPDFFactura = "@Url.Content("~/")" + "Rendicion/VerPDFFactura";
+        var url_GetVouchers = "@Url.Content("~/")" + "Rendicion/GetVouchers";
+        var url_GetFileVoucher = "@Url.Content("~/")" + "Rendicion/GetFileVoucher";
+        var url_GetCorreoContadores = "@Url.Content("~/")" + "Rendicion/GetCorreoContadores";
+        var url_SendMail = "@Url.Content("~/")" + "Rendicion/SendMail";
+        var url_UpdateEstadoRendicion = "@Url.Content("~/")" + "Rendicion/UpdateEstadoRendicion";
+
+        var ROOT = '@Url.Content("~")';
+
+    </script>
+
+    <script src="@Url.Content("~/Scripts/tesoreria.js")"></script>
+}

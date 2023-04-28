@@ -887,3 +887,5 @@ D:\Dev\ADGRendicion\FrontEnd.Web\obj\Debug\netcoreapp3.1\RdlCompile.compiled
 D:\Dev\ADGRendicion\FrontEnd.Web\bin\Debug\netcoreapp3.1\wwwroot\Reports\rptVoucher.rdlc
 D:\Dev\ADGRendicion\FrontEnd.Web\obj\Debug\netcoreapp3.1\FrontEnd.Web.csproj.AssemblyReference.cache
 D:\Dev\ADGRendicion\FrontEnd.Web\obj\Debug\netcoreapp3.1\Razor\Views\Rendicion\Contabilidad.cshtml.g.cs
+D:\Dev\ADGRendicion\FrontEnd.Web\obj\Debug\netcoreapp3.1\Razor\Views\Rendicion\Tesoreria.cshtml.g.cs
+D:\Dev\ADGRendicion\FrontEnd.Web\obj\Debug\netcoreapp3.1\Razor\Views\Rendicion\JefeArea.cshtml.g.cs

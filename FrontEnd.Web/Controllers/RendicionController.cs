@@ -35,6 +35,10 @@ namespace FrontEnd.Web.Controllers
             return View();
         }
 
+        public IActionResult JefeArea()
+        {
+            return View();
+        }
         public IActionResult Contabilidad()
         {
             return View();
@@ -183,7 +187,45 @@ namespace FrontEnd.Web.Controllers
         {
             try
             {
-                obj.user = (int)UsuarioLogueado.userId;
+
+                if (obj.imageData != "" && obj.imageData != null)
+                {
+                    byte[] f = Convert.FromBase64String(obj.imageData);
+
+                    var fileStream = new MemoryStream(f);
+
+                    IFormFile file = new FormFile(fileStream, 0, f.Length, "captura", "captura.jpg");
+
+                    string folderName = "Rendicion";
+                    string webRootPath = _hostingEnvironment.WebRootPath;
+                    string newPath = Path.Combine(webRootPath, folderName);
+
+                    if (!Directory.Exists(newPath))
+                    {
+                        Directory.CreateDirectory(newPath);
+                    }
+                    if (file.Length > 0)
+                    {
+                        string sFileExtension = ".jpg";
+                        string text = "";
+                        if (obj.estado == 4)
+                        {
+                            text = "TESO_";
+                        }
+                        else
+                        {
+                            text = "CONTA_";
+                        }
+                        
+                        obj.imgUrl = text + obj.id.ToString() + sFileExtension;
+                        string fullPath = Path.Combine(newPath, obj.imgUrl);
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            file.CopyTo(stream);
+                            stream.Position = 0;
+                        }
+                    }
+                }
 
                 var api = _configuration["Api:root"];
                 HttpClientHandler clientHandler = new HttpClientHandler();
@@ -206,7 +248,9 @@ namespace FrontEnd.Web.Controllers
 
                 var data = await result.Content.ReadAsStringAsync();
 
-                return Ok(new { value = data, status = true });
+                var correosTesoreria = _configuration["Correos:tesoreria"];
+
+                return Ok(new { value = data, correos = correosTesoreria, status = true });
             }
             catch (Exception ex)
             {
@@ -218,6 +262,7 @@ namespace FrontEnd.Web.Controllers
         {
             try
             {
+                obj.observacion = UsuarioLogueado.userLogin + ": " + obj.observacion;
                 var api = _configuration["Api:root"];
                 HttpClientHandler clientHandler = new HttpClientHandler();
                 clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
@@ -418,7 +463,7 @@ namespace FrontEnd.Web.Controllers
                     obj.ruc = Request.Form["ruc"];
                     obj.razonSocial = Request.Form["razonSocial"];
                     obj.nroDoc = Request.Form["nroDoc"];
-                    obj.importe = Convert.ToDecimal(Request.Form["importe"].ToString());
+                    obj.importe = Convert.ToDecimal(Request.Form["importe"]);
                     obj.fechaDoc = Convert.ToDateTime(Request.Form["fechaDoc"]);
 
                 var abre = "";
@@ -430,6 +475,9 @@ namespace FrontEnd.Web.Controllers
                         break;
                     case "Boleta":
                         abre = "BOL_";
+                        break;
+                    case "RxH":
+                        abre = "RxH_";
                         break;
                     case "Otro":
                         abre = "OTR_";
@@ -619,7 +667,75 @@ namespace FrontEnd.Web.Controllers
             }
         }
 
+        public async Task<IActionResult> GetAreas(Area obj)
+        {
+            try
+            {
 
+                var api = _configuration["Api:root"];
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+                // Pass the handler to httpclient(from you are calling api)
+                HttpClient httpClient = new HttpClient(clientHandler);
+
+                var request_json = JsonSerializer.Serialize(obj);
+                var content = new StringContent(request_json, Encoding.UTF8, "application/json");
+
+                var url = api + "Area/getAreasForCompany";
+                httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + UsuarioLogueado.Token);
+                var result = await httpClient.PostAsync(url, content);
+
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new ArgumentException("No se encontraron registros");
+                }
+
+                var data = await result.Content.ReadAsStringAsync();
+
+                return Ok(new { value = data, status = true });
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(new { value = ex.Message, status = false });
+            }
+        }
+
+        public async Task<IActionResult> GetJefeArea(Area obj)
+        {
+            try
+            {
+
+                var api = _configuration["Api:root"];
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+                // Pass the handler to httpclient(from you are calling api)
+                HttpClient httpClient = new HttpClient(clientHandler);
+
+                var request_json = JsonSerializer.Serialize(obj);
+                var content = new StringContent(request_json, Encoding.UTF8, "application/json");
+
+                var url = api + "Area/getJefeArea";
+                httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + UsuarioLogueado.Token);
+                var result = await httpClient.PostAsync(url, content);
+
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new ArgumentException("No se encontraron registros");
+                }
+
+                var data = await result.Content.ReadAsStringAsync();
+
+                return Ok(new { value = data, status = true });
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(new { value = ex.Message, status = false });
+            }
+        }
         public async Task<IActionResult> GetFileVoucher(int id, string codigo)
         {
             try

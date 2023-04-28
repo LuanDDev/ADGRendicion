@@ -97,7 +97,7 @@
                     <div class="row mb-3">
                         <div class="col">
                             <div class="progress" style="height:30px !important">
-                                <div class="progress-bar fs-16px fw-bold" style="width: 100%; background-color: grey !important;">FLUJO DE CAJA ("CHICA")</div>
+                                <div id="div_subTitle" class="progress-bar fs-16px fw-bold" style="width: 100%; background-color: grey !important;">FLUJO DE CAJA ("CHICA")</div>
                             </div>
                         </div>
                     </div>
@@ -134,7 +134,8 @@
                             <div class="row">
                                 <label class="form-label col-md-3 pt-2">Área</label>
                                 <div class="col-md-9">
-                                    <input id="txtArea" type="text" class="form-control label-popup" placeholder="" />
+                                    <input id="txtArea" readonly type="text" class="form-control label-popup" placeholder="" style="display:none;" />
+                                    <select class="form-select" id="sArea"></select>
                                 </div>
                             </div>
                         </div>
@@ -152,7 +153,8 @@
                             <div class="row">
                                 <label class="form-label col-md-3 pt-2">Jefe de Área</label>
                                 <div class="col-md-9">
-                                    <input id="txtJefeArea" type="text" class="form-control label-popup" placeholder="" />
+                                    <input id="txtJefeArea" readonly type="text" class="form-control label-popup" placeholder="" style="display:none;" />
+                                    <select class="form-select" id="sJefeArea"></select>
                                 </div>
                             </div>
                         </div>
@@ -167,7 +169,7 @@
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="row">
+                            <div id="div_txtPeriodo" class="row">
                                 <label class="form-label col-md-3 pt-2">Periodo</label>
                                 <div class="col-md-9">
                                     <input id="txtPeriodo" type="text" class="form-control label-popup" readonly placeholder="" />
@@ -197,12 +199,33 @@
                                 <button id="btnAgregarSustento" class="btn btn-green" type="button">Agregar Sustento</button>
                             </div>
                         </div>
-                        
+
                     </div>
                     <hr />
                     <div class="row">
                         <div id="div_tableSC">
 
+                        </div>
+                    </div>
+                    <hr />
+                    <div id="div_obsJefe" class="row">
+                        <div class="col">
+                            <label class="form-label col-md-3 pt-2">Observacion Jefe de Área</label>
+                            <input type="text" readonly class="form-control-plaintext" id="txtObsJefe" value="">
+                        </div>
+                    </div>
+                    <div id="div_obsConta" class="row">
+                        <div class="col">
+                            <label class="form-label col-md-3 pt-2">Observacion Contabilidad</label>
+                            <input type="text" readonly class="form-control-plaintext" id="txtObsConta" value="">
+                        </div>
+                    </div>
+                    <div id="div_finalizado" class="row">
+                        <div class="col">
+                            <div class="row">
+                                <label class="form-label">Finalizado</label>
+                            </div>
+                            <canvas style="border:1px solid grey; width:100% !important" id="canvasFinalizado"></canvas>
                         </div>
                     </div>
                 </div>
@@ -267,7 +290,7 @@
                             <div class="row">
                                 <label class="form-label col-md-3 pt-2">N° Doc</label>
                                 <div class="col-md-9">
-                                    <input id="txtNroFacturaSCFactura" type="text" class="form-control" placeholder="Ingrese Nro Factura" />
+                                    <input id="txtNroFacturaSCFactura" type="text" class="form-control" placeholder="Ingrese Nro Documento" />
                                 </div>
                             </div>
                         </div>
@@ -296,6 +319,8 @@
                                 <label class="btn btn-outline-primary" for="rFactura">Factura</label>
                                 <input type="radio" class="btn-check" name="options-outlined" id="rBoleta" autocomplete="off">
                                 <label class="btn btn-outline-primary" for="rBoleta">Boleta</label>
+                                <input type="radio" class="btn-check" name="options-outlined" id="rRxH" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="rRxH">Recibo por Honorarios</label>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -434,6 +459,172 @@
     </div>
 </div>
 
+<div class="modal fade" id="mSustentosRequisicion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalSustentosRequisicion"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="progress" style="height:30px !important">
+                                <div class="progress-bar fs-16px fw-bold" style="width: 100%; background-color: grey !important;">FLUJO DE CAJA ("CHICA")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <input type="hidden" id="txtIdRendicionSR" />
+                        <input type="hidden" id="txtCodigoRendicionSR" />
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Empresa</label>
+                                <div class="col-md-9">
+                                    <input id="txtEmpresaSR" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            @*<div class="row">
+                    <label class="form-label col-md-3 pt-2">Reporte N°</label>
+                    <div class="col-md-9">
+                        <input id="txtNroReporte" type="text" class="form-control label-popup" readonly placeholder="" />
+                    </div>
+                </div>*@
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">RUC</label>
+                                <div class="col-md-9">
+                                    <input id="txtRucSR" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            @*<div class="row">
+            <label class="form-label col-md-3 pt-2">Área</label>
+            <div class="col-md-9">
+                <input id="txtArea" type="text" class="form-control label-popup" placeholder="" />
+            </div>
+        </div>*@
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Jefe de Área</label>
+                                <div class="col-md-9">
+                                    <input id="txtJefeAreaSR" type="text" class="form-control label-popup" placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Trabajador Responsable</label>
+                                <div class="col-md-9">
+                                    <input id="txtTrabajadorSR" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">Fecha</label>
+                                <div class="col-md-9">
+                                    <input id="txtFechaSR" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-7 pt-2">Dinero Entregado</label>
+                                <div class="col-md-5">
+                                    <input id="txtDineroEntregadoSR" type="text" class="form-control label-popup" placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            @*<div class="row">
+                                <label class="form-label col-md-3 pt-2">Fecha</label>
+                                <div class="col-md-9">
+                                    <input id="txtFechaSR" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>*@
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-7 pt-2">Total Gastos</label>
+                                <div class="col-md-5">
+                                    <input id="txtTotalGastosSR" type="text" class="form-control label-popup" placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            @*<div class="row">
+                                <label class="form-label col-md-3 pt-2">Fecha</label>
+                                <div class="col-md-9">
+                                    <input id="txtFechaSR" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>*@
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-7 pt-2">Devolver </label>
+                                <div class="col-md-5">
+                                    <input id="txtDevolverSR" type="text" class="form-control label-popup" placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-8">
+                            <div class="row">
+                                <label class="form-label col-md-3 pt-2">N° REQUISICION</label>
+                                <div class="col-md-9">
+                                    <input id="txtNroRequisicionSR" type="text" class="form-control label-popup" readonly placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <label class="form-label col-md-7 pt-2">Devolver al rindente </label>
+                                <div class="col-md-5">
+                                    <input id="txtDevolverRindenteSR" type="text" class="form-control label-popup" placeholder="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1 mt-4">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button id="btnAgregarSustentoSR" class="btn btn-green" type="button">Agregar Sustento</button>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div id="div_tableSR">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>*@
+                <button id="btnEnviarRC" type="button" class="btn btn-primary">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="spinner_loading" class="loading" style="display:none;">Loading</div>
 
 @section Scripts
@@ -447,6 +638,8 @@
         var url_UpdateAreaRendicion = "@Url.Content("~/")" + "Rendicion/UpdateAreaRendicion";
         var url_ListCajasCombo = "@Url.Content("~/")" + "Box/ListCajasCombo";
         var url_GetRequisiciones = "@Url.Content("~/")" + "Rendicion/GetRequisiciones";
+        var url_GetAreas = "@Url.Content("~/")" + "Rendicion/GetAreas";
+        var url_GetJefeArea = "@Url.Content("~/")" + "Rendicion/GetJefeArea";
         var url_DeleteRendicion = "@Url.Content("~/")" + "Rendicion/DeleteRendicion";
         var url_ConsultaRuc = "@Url.Content("~/")" + "Rendicion/ConsultaRuc";
         var url_ListSustentos = "@Url.Content("~/")" + "Rendicion/ListSustentos";
@@ -458,6 +651,9 @@
         var url_GetFileVoucher = "@Url.Content("~/")" + "Rendicion/GetFileVoucher";
         var url_GetCorreoContadores = "@Url.Content("~/")" + "Rendicion/GetCorreoContadores";
         var url_SendMail = "@Url.Content("~/")" + "Rendicion/SendMail";
+
+        var ROOT = '@Url.Content("~")';
+
     </script>
     <script src="@Url.Content("~/Scripts/rendicion.js")"></script>
 }

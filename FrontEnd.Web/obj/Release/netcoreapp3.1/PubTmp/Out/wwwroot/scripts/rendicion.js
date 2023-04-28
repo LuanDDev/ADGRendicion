@@ -1,4 +1,7 @@
-﻿
+﻿var tipoRendicion;
+var caja;
+var requisicion
+var sumCC;
 $(document).ready(function () {
 
     var dsh = {
@@ -13,6 +16,18 @@ $(document).ready(function () {
 
             $('#spinner_loading').show();
             dsh.ListRendiciones();
+
+            $('#sArea').on('sp-change', function () {
+                if ($("#sArea").val() == '') {
+                    $('#sJefeArea').picker();
+                    $('#sJefeArea').picker('destroy');
+                    $("#sJefeArea").find('option').remove();
+                    $("#sJefeArea").attr('disabled', 'disable');
+                } else {
+                    dsh.GetJefeArea();
+                }
+            });
+
 
             $(document).on('click', '#btnNuevo', function () {
                 $('#txtDescripcion').val('');
@@ -35,14 +50,20 @@ $(document).ready(function () {
             });
 
             $(document).on('click', '.agregarSustento', function () {
+                tipoRendicion = $(this).attr('dataTipo');
+
                 $('#spinner_loading').show();
-                if ($(this).attr('dataTipo') == 'Caja') {
+                dsh.GetAreas();
+                if (tipoRendicion == 'Caja') {
+
                     $('#titleModalSustentosCaja').text('RENDICIÓN DE CAJA CHICA');
 
+                    $('#div_subTitle').text('FLUJO DE CAJA ("CHICA")');
+
                     var id = $(this).attr('dataId');
-                    var tipo = $(this).attr('dataTipo');
                     var codigo = $(this).attr('dataCodigo');
                     var fecha = new Date($(this).attr('dataDate'));
+                    var estado = $(this).attr('dataEstado');
                     console.log(fecha);
                     $.ajax({
                         cache: false,
@@ -53,10 +74,10 @@ $(document).ready(function () {
                         },
                         success: function (data) {
                             var ls = JSON.parse(data.value).data;
-
-                            $('#txtArea').val(ls[0].area);
-                            $('#txtJefeArea').val(ls[0].jefeArea);
-
+                            caja = [];
+                            $("#txtArea").val(ls[0].area);
+                            $("#txtJefeArea").val(ls[0].jefeArea);
+                            
                             $('#txtIdRendicionSC').val(ls[0].id);
                             $('#txtCodigoRendicionSC').val(ls[0].codigo);
 
@@ -67,23 +88,245 @@ $(document).ready(function () {
                             $('#txtMotivo').val('Informe de Caja Chica');
                             $('#txtNroReporte').val(codigo);
                             $('#txtFecha').val(dsh.dateToText(fecha));
-                            $('#txtPeriodo').val(dsh.obtenerNombreMes(fecha.getMonth()+1).toUpperCase() + ' ' + fecha.getFullYear());
+                            $('#txtPeriodo').val(dsh.obtenerNombreMes(fecha.getMonth() + 1).toUpperCase() + ' ' + fecha.getFullYear());
 
-                            dsh.ListSustentos(id);
+                            $('#div_txtPeriodo').css('display', '');
+
+                            if (ls[0].estado == 2) {
+                                $('#div_obsJefe').css('display', '');
+                                $('#div_obsConta').css('display', '');
+
+                                $('#txtObsJefe').css('color', 'red');
+                                $('#txtObsConta').css('color', 'red');
+
+                                $('#txtObsJefe').val(ls[0].obsJefe == '' || ls[0].obsJefe == null ? 'Sin Observaciones' : ls[0].obsJefe);
+                                $('#txtObsConta').val(ls[0].obsConta == '' || ls[0].obsConta == null ? 'Sin Observaciones' : ls[0].obsConta);
+                            } else {
+                                $('#div_obsJefe').css('display', 'none');
+                                $('#div_obsConta').css('display', 'none');
+
+                                $('#txtObsJefe').val('');
+                                $('#txtObsConta').val('');
+                            }
+
+                            dsh.ListSustentos(id, estado);
+                            setTimeout(() => {
+                                if (ls[0].codigoArea == null || ls[0].codigoArea == '') {
+                                    
+                                } else {
+                                    $('#sArea').picker('set', ls[0].codigoArea);
+                                }
+                            }, "500");
+                            
+                            setTimeout(() => {
+                                $('#sJefeArea').picker('set', ls[0].idJefeArea);
+                            }, "1000");
+
+                            if (ls[0].estado == 0 || ls[0].estado == 2) {
+                                $('#btnEnviarRC').removeAttr("disabled");
+                                $('#btnAgregarSustento').removeAttr("disabled");
+
+                                $(".picker").css('display', '');
+
+                                $("#txtArea").css('display', 'none');
+                                $("#txtJefeArea").css('display', 'none');
+                            } else {
+                                $('#btnEnviarRC').attr("disabled", 'disabled');
+                                $('#btnAgregarSustento').attr("disabled", 'disabled');
+
+                                setTimeout(() => {
+                                    $(".picker").css('display', 'none');
+                                    $("#sArea").css('display', 'none');
+                                    $("#sJefeArea").css('display', 'none');
+
+
+                                    $("#txtArea").css('display', '');
+                                    $("#txtJefeArea").css('display', '');
+                                }, "800");
+                            }
+
+                            if (ls[0].estado == 4) {
+                                var canvasConta = document.getElementById("canvasFinalizado");
+
+                                canvasConta.width = canvasConta.width;
+
+                                var autoresizeConta = true;
+
+                                var ctxConta = document.getElementById("canvasFinalizado").getContext("2d");
+
+                                var pastedImageConta = new Image();
+                                pastedImageConta.onload = function () {
+                                    if (autoresizeConta == true) {
+                                        //resize canvas
+                                        canvasConta.width = pastedImageConta.width;
+                                        canvasConta.height = pastedImageConta.height;
+                                    }
+                                    else {
+                                        //clear canvas
+                                        ctxConta.clearRect(0, 0, canvas.width, canvas.height);
+                                    }
+                                    ctxConta.drawImage(pastedImageConta, 0, 0);
+                                };
+
+                                ruta = ROOT + '/Rendicion/' + ls[0].imgUrlTeso;
+                                nombreCaptura = ls[0].imgUrlTeso;
+
+                                pastedImageConta.src = ruta;
+
+                                $('#div_finalizado').css('display', '');
+                            } else {
+                                $('#div_finalizado').css('display', 'none');
+                            }
 
                             setTimeout(() => {
                                 $('#mSustentosCaja').modal('show');
                                 $('#spinner_loading').hide();
-                            },"1000");
+                            }, "200");
+
+                            var row = { idCaja: ls[0].idCaja, caja : ls[0].caja, monto : ls[0].monto }
+                            caja.push(row);
+                            console.log(caja);
+
                         },  
                         error: function (request) {
                         }
                     });
+                }
 
 
-                } else if ($(this).attr('dataTipo') == 'Requisición') {
-                    $('#titleModalSustentosRequisicion').text('Sustento de Requisición');
-                    $('#mSustentosRequisicion').modal('show');
+                if (tipoRendicion == 'Requisición') {
+                    $('#titleModalSustentosCaja').text('RENDICIÓN DE REQUISICIÓN DE FONDOS');
+
+                    var id = $(this).attr('dataId');
+                    var codigo = $(this).attr('dataCodigo');
+                    var fecha = new Date($(this).attr('dataDate'));
+                    var estado = $(this).attr('dataEstado');
+                    console.log(fecha);
+                    $.ajax({
+                        cache: false,
+                        url: url_GetRendicion,
+                        type: "POST",
+                        data: {
+                            id: id,
+                        },
+                        success: function (data) {
+                            var ls = JSON.parse(data.value).data;
+                            requisicion = [];
+                            $('#div_subTitle').text('RENDICIÓN DE GASTOS');
+                            $("#txtArea").val(ls[0].area);
+                            $("#txtJefeArea").val(ls[0].jefeArea);
+
+                            $('#txtIdRendicionSC').val(ls[0].id);
+                            $('#txtCodigoRendicionSC').val(ls[0].codigo);
+
+                            $('#txtEmpresa').val(sessionStorage.RazonSocial);
+                            $('#txtRuc').val(sessionStorage.Ruc);
+                            $('#txtTrabajador').val(userLogin);
+
+                            $('#txtMotivo').val('Informe de Requisición de Fondos');
+                            $('#txtNroReporte').val(codigo);
+                            $('#txtFecha').val(dsh.formatDateSlash(new Date(ls[0].dateCreate)));
+                            //$('#txtPeriodo').val(dsh.obtenerNombreMes(fecha.getMonth() + 1).toUpperCase() + ' ' + fecha.getFullYear());
+
+                            //$('#txtFecha').css('display', 'none');
+                            $('#div_txtPeriodo').css('display', 'none');
+
+                            if (ls[0].estado == 2) {
+                                $('#div_obsJefe').css('display', '');
+                                $('#div_obsConta').css('display', '');
+
+                                $('#txtObsJefe').css('color', 'red');
+                                $('#txtObsConta').css('color', 'red');
+
+                                $('#txtObsJefe').val(ls[0].obsJefe == '' || ls[0].obsJefe == null ? 'Sin Observaciones' : ls[0].obsJefe);
+                                $('#txtObsConta').val(ls[0].obsConta == '' || ls[0].obsConta == null ? 'Sin Observaciones' : ls[0].obsConta);
+                            } else {
+                                $('#div_obsJefe').css('display', 'none');
+                                $('#div_obsConta').css('display', 'none');
+
+                                $('#txtObsJefe').val('');
+                                $('#txtObsConta').val('');
+                            }
+
+
+                            dsh.ListSustentos(id, estado);
+                            setTimeout(() => {
+                                $('#sArea').picker('set', ls[0].codigoArea);
+                            }, "500");
+
+                            setTimeout(() => {
+                                $('#sJefeArea').picker('set', ls[0].idJefeArea);
+                            }, "1000");
+
+                            if (ls[0].estado == 0 || ls[0].estado == 2) {
+                                $('#btnEnviarRC').removeAttr("disabled");
+                                $('#btnAgregarSustento').removeAttr("disabled");
+
+                                $(".picker").css('display', '');
+
+                                $("#txtArea").css('display', 'none');
+                                $("#txtJefeArea").css('display', 'none');
+                            } else {
+                                $('#btnEnviarRC').attr("disabled", 'disabled');
+                                $('#btnAgregarSustento').attr("disabled", 'disabled');
+
+                                setTimeout(() => {
+                                    $(".picker").css('display', 'none');
+                                    $("#sArea").css('display', 'none');
+                                    $("#sJefeArea").css('display', 'none');
+
+
+                                    $("#txtArea").css('display', '');
+                                    $("#txtJefeArea").css('display', '');
+                                }, "800");
+                            }
+
+                            if (ls[0].estado == 4) {
+                                var canvasConta = document.getElementById("canvasFinalizado");
+
+                                canvasConta.width = canvasConta.width;
+
+                                var autoresizeConta = true;
+
+                                var ctxConta = document.getElementById("canvasFinalizado").getContext("2d");
+
+                                var pastedImageConta = new Image();
+                                pastedImageConta.onload = function () {
+                                    if (autoresizeConta == true) {
+                                        //resize canvas
+                                        canvasConta.width = pastedImageConta.width;
+                                        canvasConta.height = pastedImageConta.height;
+                                    }
+                                    else {
+                                        //clear canvas
+                                        ctxConta.clearRect(0, 0, canvas.width, canvas.height);
+                                    }
+                                    ctxConta.drawImage(pastedImageConta, 0, 0);
+                                };
+
+                                ruta = ROOT + '/Rendicion/' + ls[0].imgUrlTeso;
+                                nombreCaptura = ls[0].imgUrlTeso;
+
+                                pastedImageConta.src = ruta;
+
+                                $('#div_finalizado').css('display', '');
+                            } else {
+                                $('#div_finalizado').css('display', 'none');
+                            }
+
+                            setTimeout(() => {
+                                $('#mSustentosCaja').modal('show');
+                                $('#spinner_loading').hide();
+                            }, "200");
+
+                            var row = { id: ls[0].idRequisicion, requisicion: ls[0].requisicion, monto: ls[0].montoRequisicion }
+                            requisicion.push(row);
+                            console.log(requisicion);
+
+                        },
+                        error: function (request) {
+                        }
+                    });
                 }
             });
 
@@ -119,11 +362,11 @@ $(document).ready(function () {
                 $('#lblTipoDoc').text()
             });
 
-            $(document).on('blur', '#txtArea', function () {
+            $(document).on('sp-change', '#sArea', function () {
                 dsh.UpdateAreaRendicion();
             });
 
-            $(document).on('blur', '#txtJefeArea', function () {
+            $(document).on('sp-change', '#sJefeArea', function () {
                 dsh.UpdateAreaRendicion();
             });
 
@@ -159,7 +402,7 @@ $(document).ready(function () {
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     inputOptions: {
-                        0: 'Factura | Boleta',
+                        0: 'Factura | Boleta | RxH',
                         1: 'Voucher de Movilidad',
                         2: 'Otros'
                     },
@@ -177,19 +420,21 @@ $(document).ready(function () {
                                     $('#div_adjuntosSCFactura').css('display', '');
 
                                     $('#titleModalSCFactura').text('Nuevo Sustento');
+                                    $('#btnAgregarSCFactura').text('Agregar');
                                     $('#txtIdSCFactura').val('');
                                     $('#mSCFactura').modal('show');
                                     break;
                                 case '1':
                                     console.log(value);
                                     resolve();
-                                    dsh.limpiarmSCBoleta();
+                                    dsh.GetVouchers();
 
-                                    $('#div_adjuntosSCBoleta').css('display', '');
+                                    dsh.limpiarmSCVoucher();
 
-                                    $('#titleModalSCBoleta').text('Boleta Nueva');
-                                    $('#txtIdSCBoleta').val('');
-                                    $('#mSCBoleta').modal('show');
+                                    $('#titleModalSCVoucher').text('Nuevo Sustento');
+                                    $('#btnAgregarSCVoucher').text('Agregar');
+                                    $('#txtIdSCVoucher').val('');
+                                    $('#mSCVoucher').modal('show');
                                     break;
                                 case '2':
                                     console.log(value);
@@ -199,6 +444,7 @@ $(document).ready(function () {
                                     $('#div_adjuntosSCOtro').css('display', '');
 
                                     $('#titleModalSCOtro').text('Nuevo Sustento');
+                                    $('#btnAgregarSCOtro').text('Agregar');
                                     $('#txtIdSCOtro').val('');
                                     $('#mSCOtro').modal('show');
                                     break;
@@ -257,7 +503,10 @@ $(document).ready(function () {
                         if (document.getElementById("rBoleta").checked == true) {
                             tipo = 'Boleta';
                         }
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        if (document.getElementById("rRxH").checked == true) {
+                            tipo = 'RxH';
+                        }
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
 
@@ -271,7 +520,10 @@ $(document).ready(function () {
                         if (document.getElementById("rBoleta").checked == true) {
                             tipo = 'Boleta';
                         }
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        if (document.getElementById("rRxH").checked == true) {
+                            tipo = 'RxH';
+                        }
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
             });
@@ -282,18 +534,50 @@ $(document).ready(function () {
                 if ($('#btnAgregarSCOtro').text() == 'Agregar') {
                     if (dsh.validarSCOtro()) {
                         $('#spinner_loading').show();
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
 
                 if ($('#btnAgregarSCOtro').text() == 'Modificar') {
                     if (dsh.validarSCOtroSinFiles()) {
                         $('#spinner_loading').show();
-                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val());
+                        dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(),'','');
                     }
                 }
             });
 
+            $(document).on('click', '#btnAgregarSCVoucher', function () {
+
+                let tipo = 'Voucher';
+
+                if (dsh.validarSCVoucher()) {
+                    Swal.fire({
+                        icon: 'question',
+                        //title: 'Éxito',
+                        text: '¿Esta seguro de su elección?',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#spinner_loading').show();
+                            $.ajax({
+                                cache: false,
+                                url: url_GetFileVoucher,
+                                type: "POST",
+                                data: {
+                                    id: $('#sVouchers').val(),
+                                    codigo: $('#txtCodigoRendicionSC').val()
+                                },
+                                success: function (data) {
+                                    var ls = JSON.parse(data.value).data[0];
+                                    var filename = data.fileName;
+                                    dsh.InsertSustento(tipo, $('#txtCodigoRendicionSC').val(), ls, filename);
+                                },
+                                error: function (request) {
+                                }
+                            });
+                        }
+                    })
+                }
+            });
             $(document).on('click', '.verPDFSC', function () {
                 let codigo = $(this).attr('dataCodigo');
                 let pdf = $(this).attr('dataFilePDF');
@@ -304,7 +588,7 @@ $(document).ready(function () {
                 let id = $(this).attr('dataId');
                 let tipo = $(this).attr('dataTipo');
 
-                if (tipo == 'Factura' || tipo == 'Boleta') {
+                if (tipo == 'Factura' || tipo == 'Boleta' || tipo == 'RxH') {
                     $.ajax({
                         cache: false,
                         url: url_ListSustentoById,
@@ -362,6 +646,37 @@ $(document).ready(function () {
                         }
                     });
                 }
+
+                if (tipo == 'Voucher') {
+                    $.ajax({
+                        cache: false,
+                        url: url_ListSustentoById,
+                        type: "POST",
+                        data: {
+                            id: id,
+                        },
+                        success: function (data) {
+                            var ls = JSON.parse(data.value).data;
+                            $('#txtIdSCVoucher').val(id);
+
+                            dsh.GetVouchers();
+
+                            setTimeout(() => {
+                                $('#sVouchers').val(ls[0].voucherId);
+                                $('#txtIdSCVoucher').val(ls[0].id);
+                                $('#txtDescripcionSCVoucher').val(ls[0].descripcion);
+                                $('#txtCentroCostoSCVoucher').val(ls[0].centroCosto);
+                            }, 300);
+
+                            $('#btnAgregarSCVoucher').text('Modificar');
+                            $('#titleModalSCVoucher').text('Editar Sustento');
+                            $('#mSCVoucher').modal('show');
+                            $('#spinner_loading').hide();
+                        },
+                        error: function (request) {
+                        }
+                    });
+                }
             });
 
             $(document).on('click', '.borrarSC', function () {
@@ -374,6 +689,30 @@ $(document).ready(function () {
                 dsh.DeleteSustento(id, pdf, xml, codigo);
                 
             });
+
+            $(document).on('click', '#btnEnviarRC', function () {
+
+                
+                if ($("#txtJefeArea").val() == null || $("#txtJefeArea").val() == '') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Error',
+                        text: 'Debe elegir Jefatura de Area',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#mNuevo').modal('hide');
+                            dsh.ListRendiciones();
+                            $('#spinner_loading').hide();
+                        }
+                    })
+                } else {
+                    dsh.GetCorreoContadores();
+                    dsh.UpdateEstadoRendicion($('#txtIdRendicionSC').val(), 6)
+                }
+                
+            });
+
+            
         },
 
         limpiarmSCFactura() {
@@ -434,6 +773,17 @@ $(document).ready(function () {
             $('#fPDFOtro').val('');
             $("#fPDFOtro").removeClass("parsley-success");
             $("#fPDFOtro").removeClass("parsley-error");
+        },
+
+        limpiarmSCVoucher() {
+            $('#txtDescripcionSCVoucher').val('');
+            $("#txtDescripcionSCVoucher").removeClass("parsley-success");
+            $("#txtDescripcionSCVoucher").removeClass("parsley-error");
+
+            $('#txtCentroCostoSCVoucher').val('');
+            $("#txtCentroCostoSCVoucher").removeClass("parsley-success");
+            $("#txtCentroCostoSCVoucher").removeClass("parsley-error");
+
         },
 
         validarSCFactura() {
@@ -772,6 +1122,49 @@ $(document).ready(function () {
             }
         },
 
+        validarSCVoucher() {
+
+            var val = 0;
+            if ($('#txtDescripcionSCVoucher').val() == '') {
+                $("#txtDescripcionSCVoucher").removeClass("parsley-success");
+                $("#txtDescripcionSCVoucher").removeClass("parsley-error");
+                $("#txtDescripcionSCVoucher").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtDescripcionSCVoucher").removeClass("parsley-success");
+                $("#txtDescripcionSCVoucher").removeClass("parsley-error");
+                $("#txtDescripcionSCVoucher").addClass("parsley-success");
+            }
+
+            if ($('#txtCentroCostoSCVoucher').val() == '') {
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-success");
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-error");
+                $("#txtCentroCostoSCVoucher").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-success");
+                $("#txtCentroCostoSCVoucher").removeClass("parsley-error");
+                $("#txtCentroCostoSCVoucher").addClass("parsley-success");
+            }
+
+            if ($('#sVouchers').val() == '') {
+                $("#sVouchers").removeClass("parsley-success");
+                $("#sVouchers").removeClass("parsley-error");
+                $("#sVouchers").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#sVouchers").removeClass("parsley-success");
+                $("#sVouchers").removeClass("parsley-error");
+                $("#sVouchers").addClass("parsley-success");
+            }
+
+            if (val == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
         sumarDias(fecha, dias) {
             fecha.setDate(fecha.getDate() + dias);
             return fecha;
@@ -844,6 +1237,82 @@ $(document).ready(function () {
 
         },
 
+        SumaTotal() {
+            
+            $('#div_table_sumSC').html('');
+
+            var htmlTableDetalle = '';
+            htmlTableDetalle += `
+                        <table id="tSumaCC" class="table-hover" style="width:100%; font-size:15px">
+                            `;
+            htmlTableDetalle += `
+                            <tbody>`;
+            htmlTableDetalle += `<tr style="vertical-align: middle;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Monto Caja Total` + `</th>
+                                <td class="text-end" style="padding: 0px;">` + dsh.soles(caja[0].monto) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+
+            htmlTableDetalle += `<tr style="vertical-align: middle;border-bottom: double;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Monto Sustentado` + `</th>
+                                <td class="text-end" style="padding: 0px; ">` + dsh.soles(sumCC) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+
+            htmlTableDetalle += `<tr style="vertical-align: middle;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Diferencia` + `</th>
+                                <td class="text-end" style="padding: 0px;">` + dsh.soles(caja[0].monto - sumCC) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+            
+            htmlTableDetalle += `
+                            </tbody>
+                        </table>`;
+            console.log(htmlTableDetalle);
+            $('#div_table_sumSC').html(htmlTableDetalle);
+        },
+
+        SumaTotalRequisicion() {
+
+            $('#div_table_sumSC').html('');
+
+            var htmlTableDetalle = '';
+            htmlTableDetalle += `
+                        <table id="tSumaCC" class="table-hover" style="width:100%; font-size:15px">
+                            `;
+            htmlTableDetalle += `
+                            <tbody>`;
+            htmlTableDetalle += `<tr style="vertical-align: middle;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Monto Requisición Total` + `</th>
+                                <td class="text-end" style="padding: 0px;">` + dsh.soles(requisicion[0].monto) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+
+            htmlTableDetalle += `<tr style="vertical-align: middle;border-bottom: double;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Monto Sustentado` + `</th>
+                                <td class="text-end" style="padding: 0px; ">` + dsh.soles(sumCC) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+
+            htmlTableDetalle += `<tr style="vertical-align: middle;">`;
+            htmlTableDetalle += `
+                                <th style="padding: 0px;">` + `Diferencia` + `</th>
+                                <td class="text-end" style="padding: 0px;">` + dsh.soles(requisicion[0].monto - sumCC) + `</td>
+                            `;
+            htmlTableDetalle += `</tr>`;
+
+            htmlTableDetalle += `
+                            </tbody>
+                        </table>`;
+            console.log(htmlTableDetalle);
+            $('#div_table_sumSC').html(htmlTableDetalle);
+        },
+
         ListRendiciones() {
             $.ajax({
                 cache: false,
@@ -874,7 +1343,19 @@ $(document).ready(function () {
                                     estado = 'Sin revisión';
                                     break;
                                 case 1:
-                                    estado = '';
+                                    estado = 'Enviado a revisión';
+                                    break;
+                                case 2:
+                                    estado = 'Observado';
+                                    break;
+                                case 3:
+                                    estado = 'en Tesoreria';
+                                    break;
+                                case 4:
+                                    estado = 'Finalizado';
+                                    break;
+                                case 6:
+                                    estado = 'en Jefe de Area';
                                     break;
                                 default:
                                     console.log("Invalid day of the week");
@@ -887,9 +1368,9 @@ $(document).ready(function () {
                                 ls[i].descripcion,
                                 ls[i].tipo == 'Caja' ? 'Caja : ' + ls[i].caja : 'Requisición : ' + ls[i].requisicion,
                                 estado,
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Agregar Sustentos" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataDate="' + ls[i].dateCreate + '" class="btn btn-indigo btn-xs agregarSustento"><i class="ion ion-md-apps"></i></button> ' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" class="btn btn-primary btn-xs modificar"><i class="ion ion-md-create"></i></button> ' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" class="btn btn-danger btn-xs borrar"><i class="ion ion-md-trash"></i></button>   '
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Agregar Sustentos" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataDate="' + ls[i].dateCreate + '" dataEstado="' + ls[i].estado + '" class="btn btn-indigo btn-xs agregarSustento"><i class="ion ion-md-apps"></i></button> ' +
+                                (ls[i].estado == 4 || ls[i].estado == 1 || ls[i].estado == 3 || ls[i].estado == 6 ? '' : ('<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" class="btn btn-primary btn-xs modificar"><i class="ion ion-md-create"></i></button> ')) +
+                                (ls[i].estado == 2 || ls[i].estado == 0 ? ('<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" class="btn btn-danger btn-xs borrar"><i class="ion ion-md-trash"></i></button>   ') : '')
                             ]);
                         }
 
@@ -921,6 +1402,12 @@ $(document).ready(function () {
                         $('#div_table').html(htmlTableDetalle);
 
                         $('#tRendiciones').DataTable({
+                            dom: '<"dataTables_wrapper dt-bootstrap"<"row"<"col-xl-7 d-block d-sm-flex d-xl-block justify-content-center"<"d-block d-lg-inline-flex me-0 me-md-3"l><"d-block d-lg-inline-flex"B>><"col-xl-5 d-flex d-xl-block justify-content-center"fr>>t<"row"<"col-md-5"i><"col-md-7"p>>>',
+                            buttons: [
+                                { extend: 'excel', className: 'btn-sm' },
+                                { extend: 'pdf', className: 'btn-sm' },
+                                { extend: 'print', className: 'btn-sm', name: 'Imprimir' }
+                            ],
                             destroy: true,
                             //scrollY: 400,
                             //scrollX: true,
@@ -1072,12 +1559,58 @@ $(document).ready(function () {
                 }
             });
         },
+        UpdateEstadoRendicion(id,estado) {
+            $.ajax({
+                cache: false,
+                url: url_UpdateEstadoRendicion,
+                type: "POST",
+                data: {
+                    id: id,
+                    estado: estado
+                },
+                success: function (data) {
+                    if (data.status) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Se envió correctamente para su revisión',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $('#mSustentosCaja').modal('hide');
+                                dsh.ListRendiciones();
+                                $('#spinner_loading').hide();
+                            }
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un problema al actualizar el estado de la rendición',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
 
+                            }
+                        })
+                    }
+                },
+                error: function (request) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un problema al actualizar el estado de la rendición',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+                        }
+                    })
+                }
+            });
+        },
         UpdateAreaRendicion() {
 
             var id = $('#txtIdRendicionSC').val();
-            var area = $('#txtArea').val();
-            var jefeArea = $('#txtJefeArea').val();
+            var area = $('#sArea').picker('get');
+            var jefeArea = $('#sJefeArea').picker('get');
 
             $.ajax({
                 cache: false,
@@ -1090,7 +1623,8 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     if (data.status) {
-                                                
+                        $("#txtArea").val(area);
+                        $("#txtJefeArea").val(jefeArea);
                     }
                 },
                 error: function (request) {
@@ -1187,7 +1721,73 @@ $(document).ready(function () {
             });
         },
 
-        ListSustentos(id) {
+        GetAreas() {
+            $.ajax({
+                url: url_GetAreas,
+                type: "POST",
+                data: {
+                    companyId: sessionStorage.IdEmpresa,
+                },
+                success: function (data) {
+                    //console.log(data.value);
+
+                    var ls = JSON.parse(data.value).data;
+                    $("#sArea").picker('destroy');
+                    $("#sArea").find('option').remove();
+                    for (var i = 0; i < ls.length; i++) {
+                        $("#sArea").append("<option value='" + ls[i].codigo + "'> " + ls[i].descripcion + " </option>");
+                    }
+                    $('#sArea').picker({
+                        search: true,
+                        texts: { trigger: "-- Seleccione Area --", noResult: "No se encuentró", search: "Buscar" }
+                    });
+                    //jSuites.dropdown(document.getElementById('sCaja'));
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });
+        },
+
+        GetJefeArea() {
+            $.ajax({
+                url: url_GetJefeArea,
+                type: "POST",
+                data: {
+                    companyId: sessionStorage.IdEmpresa,
+                    codigo: $('#sArea').val()
+                },
+                success: function (data) {
+                    //console.log(data.value);
+
+                    var ls = JSON.parse(data.value).data;
+
+                    if (ls.length > 0) {
+                        $("#sJefeArea").picker('destroy');
+                        $("#sJefeArea").find('option').remove();
+                        for (var i = 0; i < ls.length; i++) {
+                            $("#sJefeArea").append("<option value='" + ls[i].userId + "'> " + ls[i].usuario + " </option>");
+                        }
+                        $('#sJefeArea').picker({
+                            search: true,
+                            texts: { trigger: "-- Seleccione Jefe de Área --", noResult: "No se encuentró", search: "Buscar" }
+                        });
+                    } else {
+                        $('#sJefeArea').picker();
+                        $('#sJefeArea').picker('destroy');
+                        $("#sJefeArea").find('option').remove();
+                        $("#sJefeArea").attr('disabled', 'disabled');
+                    }
+                    
+                    //jSuites.dropdown(document.getElementById('sCaja'));
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });
+        },
+
+        ListSustentos(id,estado) {
             $.ajax({
                 cache: false,
                 url: url_ListSustentos,
@@ -1235,6 +1835,13 @@ $(document).ready(function () {
                                     fechaDoc = dsh.formatDate(new Date(ls[i].fechaDoc));
                                     importe = dsh.soles(ls[i].importe);
                                     break;
+                                case 'RxH':
+                                    tipo = 'RxH';
+                                    ruc = ls[i].ruc;
+                                    nroDoc = ls[i].nroDoc;
+                                    fechaDoc = dsh.formatDate(new Date(ls[i].fechaDoc));
+                                    importe = dsh.soles(ls[i].importe);
+                                    break;
                                 case 'Voucher':
                                     tipo = 'VR'
                                     ruc = ls[i].ruc;
@@ -1261,12 +1868,18 @@ $(document).ready(function () {
                                 ls[i].descripcion,
                                 importe,
                                 '<div class="fa-2x">' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Ver PDF" class="btn btn-outline-danger btn-icon verPDFSC" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '"><i class="fas fa-file-pdf"></i></button> ' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" class="btn btn-outline-primary btn-icon modificarSC"><i class="ion ion-md-create"></i></button> ' +
-                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '" dataFileXML="' + ls[i].fileXML + '"class="btn btn-outline-danger btn-icon borrarSC"><i class="ion ion-md-trash"></i></button>   ' +
+                                '<button type="button" data-bs-toggle="tooltip" data-bs-title="Ver PDF" class="btn btn-outline-dark btn-icon verPDFSC" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '"><i class="fas fa-file-pdf"></i></button> ' +
+                                (ls[i].estado == 0 || ls[i].estado == 2 ? (tipo != 'VR' ? '<button type="button" data-bs-toggle="tooltip" data-bs-title="Modificar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" class="btn btn-outline-primary btn-icon modificarSC"><i class="ion ion-md-create"></i></button> ' : '') : '') +
+                                (ls[i].estado == 0 || ls[i].estado == 2 ? ('<button type="button" data-bs-toggle="tooltip" data-bs-title="Eliminar" dataId="' + ls[i].id + '" dataTipo="' + ls[i].tipo + '" dataCodigo="' + ls[i].codigo + '" dataFilePDF="' + ls[i].filePDF + '" dataFileXML="' + ls[i].fileXML + '"class="btn btn-outline-danger btn-icon borrarSC"><i class="ion ion-md-trash"></i></button>  '):'') +
                                 '</div>'
                             ]);
                         }
+
+                        sumCC = 0
+                        for (var i = 0; i < dataSet.length; i++) {
+                            sumCC += ls[i].importe;
+                        }
+                        console.log(sumCC);
 
                         var htmlTableDetalle = '';
                         htmlTableDetalle += `
@@ -1296,6 +1909,12 @@ $(document).ready(function () {
                         $('#div_tableSC').html(htmlTableDetalle);
 
                         $('#tSustentosCaja').DataTable({
+                            dom: '<"dataTables_wrapper dt-bootstrap"<"row"<"col-xl-7 d-block d-sm-flex d-xl-block justify-content-center"<"d-block d-lg-inline-flex me-0 me-md-3"l><"d-block d-lg-inline-flex"B>><"col-xl-5 d-flex d-xl-block justify-content-center"fr>>t<"row"<"col-md-5"i><"col-md-7"p>>>',
+                            buttons: [
+                                { extend: 'excel', className: 'btn-sm' },
+                                { extend: 'pdf', className: 'btn-sm' },
+                                { extend: 'print', className: 'btn-sm', name: 'Imprimir' }
+                            ],
                             destroy: true,
                             //scrollY: 400,
                             //scrollX: true,
@@ -1335,6 +1954,14 @@ $(document).ready(function () {
                         });
                         $('[data-bs-toggle="tooltip"]').tooltip();
                         //$('#spinner_loading').hide();
+
+                        if (tipoRendicion == 'Caja') {
+                            dsh.SumaTotal();
+                        }
+                        if (tipoRendicion == 'Requisición') {
+                            dsh.SumaTotalRequisicion();
+                        }
+                        
                     }
                 },
                 error: function (request) {
@@ -1342,14 +1969,14 @@ $(document).ready(function () {
             });
         },
 
-        InsertSustento(tipo,codigo) {
+        InsertSustento(tipo,codigo,ls,filename) {
             var idRendicion = $('#txtIdRendicionSC').val();
             var fdata = new FormData();
             fdata.append('idRendicion', idRendicion);
             fdata.append('tipo', tipo);
             fdata.append('codigo', codigo);
 
-            if (tipo == 'Factura' || tipo == 'Boleta') {
+            if (tipo == 'Factura' || tipo == 'Boleta' || tipo == 'RxH') {
                 fdata.append('id', $('#txtIdSCFactura').val());
                 fdata.append('descripcion', $('#txtDescripcionSCFactura').val());
                 fdata.append('centroCosto', $('#txtCentroCostoSCFactura').val());
@@ -1385,6 +2012,16 @@ $(document).ready(function () {
                 }
             }
 
+            if (tipo == 'Voucher') {
+                fdata.append('id', $('#txtIdSCVoucher').val());
+                fdata.append('descripcion', $('#txtDescripcionSCVoucher').val());
+                fdata.append('centroCosto', $('#txtCentroCostoSCVoucher').val());
+                fdata.append('fechaDoc', ls.Fecha);
+                fdata.append('voucherId', ls.IdVoucher);
+                fdata.append('filePDF', filename);
+                fdata.append('importe', ls.Monto);
+            }
+
             $.ajax({
                 type: "POST",
                 url: url_InsertSustento,
@@ -1407,7 +2044,7 @@ $(document).ready(function () {
                         }).then((result) => {
                             if (result.isConfirmed) {
 
-                                if (tipo == 'Factura' || tipo == 'Boleta') {
+                                if (tipo == 'Factura' || tipo == 'Boleta' || tipo == 'RxH') {
                                     $('#mSCFactura').modal('hide');
                                     dsh.ListSustentos(idRendicion);
                                     $('#spinner_loading').hide();
@@ -1415,6 +2052,12 @@ $(document).ready(function () {
 
                                 if (tipo == 'Otro') {
                                     $('#mSCOtro').modal('hide');
+                                    dsh.ListSustentos(idRendicion);
+                                    $('#spinner_loading').hide();
+                                }
+
+                                if (tipo == 'Voucher') {
+                                    $('#mSCVoucher').modal('hide');
                                     dsh.ListSustentos(idRendicion);
                                     $('#spinner_loading').hide();
                                 }
@@ -1465,6 +2108,90 @@ $(document).ready(function () {
                 },
                 error: function () {
                     console.log("Error");
+                }
+            });
+        },
+
+        GetVouchers() {
+            $.ajax({
+                type: "POST",
+                url: url_GetVouchers,
+                data: {
+                    companyId : sessionStorage.IdEmpresa
+                },
+                success: function (data) {
+                    //console.log(data);
+                    if (data.status) {
+                        //var ls = JSON.parse(data.value).data;
+
+                        var ls = JSON.parse(data.value).data;
+
+                        $("#sVouchers").find('option').remove();
+                        for (var i = 0; i < ls.length; i++) {
+                            $("#sVouchers").append("<option value='" + ls[i].IdVoucher + "'> N°: " + ls[i].Correlativo + " | Monto: " + dsh.soles(ls[i].Monto) + " | Usuario: " + ls[i].Usuario + " | Fecha: " + dsh.formatDateSlash(new Date(ls[i].Fecha)) + " </option>");
+                        }
+
+                    }
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });
+        },
+
+        GetCorreoContadores() {
+            $.ajax({
+                type: "POST",
+                url: url_GetCorreoContadores,
+                data: {
+                    companyId : sessionStorage.IdEmpresa
+                },
+                success: function (data) {
+                    //console.log(data);
+                    if (data.status) {
+                        //var ls = JSON.parse(data.value).data;
+
+                        var ls = JSON.parse(data.value).data[0];
+
+                        dsh.SendMail(ls.correos);
+                    }
+                },
+                error: function () {
+                    console.log("Error");
+                    return false;
+                }
+            });
+        },
+
+        SendMail(para) {
+
+            var para = para;
+            var asunto = 'NOTIFICACIÓN DE NUEVA RENDICION POR REVISAR';
+            var cuerpo = `
+                <p> Estimado(a).</p>
+                <p> Se ha generado una nueva rendición ` + $('#txtNroReporte').val() + ` para la empresa ` + sessionStorage.RazonSocial + ` por el monto de ` + dsh.soles(sumCC) + `</p>
+
+                <p> Atte.</p>
+                <p> <strong>ADGIntegrado - Módulo Rendiciones.</strong></p>
+            `;
+
+            $.ajax({
+                type: "POST",
+                url: url_SendMail,
+                data: {
+                    Para: para,
+                    Asunto: asunto,
+                    Cuerpo: cuerpo
+                },
+                success: function (data) {
+                    //console.log(data);
+                    if (data.status) {
+                        return true;
+                    }
+                },
+                error: function () {
+                    console.log("Error");
+                    return false;
                 }
             });
         },

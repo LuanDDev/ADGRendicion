@@ -31,12 +31,19 @@ $(document).ready(function () {
 
             $(document).on('click', '#btnNuevo', function () {
                 $('#txtDescripcion').val('');
+                $('#txtId').val('');
                 let chkCaja = document.getElementById('chkCaja');
                 if (chkCaja.checked) {
                     $('#div_requisicion').css('display', 'none');
                     $('#div_caja').css('display', '');
 
                     dsh.GetCajas();
+
+                    dsh.limpiarRendicion();
+
+                    //setTimeout(() => {
+                    //    $('.select2').val('').change();
+                    //}, "1000");
                 }
 
                 let chkReq = document.getElementById('chkReq');
@@ -387,7 +394,9 @@ $(document).ready(function () {
             });
 
             $(document).on('click', '#btnGuardar', function () {
-                dsh.InsertRendicion();
+                if (dsh.validarRendicion()) {
+                    dsh.InsertRendicion();
+                }
             });
 
             $(document).on('click', '#btnAgregarSustento', function () {
@@ -706,7 +715,7 @@ $(document).ready(function () {
                         }
                     })
                 } else {
-                    dsh.GetCorreoContadores();
+                    //dsh.GetCorreoContadores();
                     dsh.UpdateEstadoRendicion($('#txtIdRendicionSC').val(), 6)
                 }
                 
@@ -784,6 +793,49 @@ $(document).ready(function () {
             $("#txtCentroCostoSCVoucher").removeClass("parsley-success");
             $("#txtCentroCostoSCVoucher").removeClass("parsley-error");
 
+        },
+
+        limpiarRendicion() {
+            $('#txtDescripcion').val('');
+            $("#txtDescripcion").removeClass("parsley-success");
+            $("#txtDescripcion").removeClass("parsley-error");
+
+            $('#sCaja').val('').change();
+            $("#div_caja .select2-selection").removeClass("parsley-success");
+            $("#div_caja .select2-selection").removeClass("parsley-error");
+        },
+
+        validarRendicion() {
+
+            var val = 0;
+
+            if ($('#txtDescripcion').val() == '') {
+                $("#txtDescripcion").removeClass("parsley-success");
+                $("#txtDescripcion").removeClass("parsley-error");
+                $("#txtDescripcion").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#txtDescripcion").removeClass("parsley-success");
+                $("#txtDescripcion").removeClass("parsley-error");
+                $("#txtDescripcion").addClass("parsley-success");
+            }
+
+            if ($('#sCaja').val() == null) {
+                $("#div_caja .select2-selection").removeClass("parsley-success");
+                $("#div_caja .select2-selection").removeClass("parsley-error");
+                $("#div_caja .select2-selection").addClass("parsley-error");
+                val = 1;
+            } else {
+                $("#div_caja .select2-selection").removeClass("parsley-success");
+                $("#div_caja .select2-selection").removeClass("parsley-error");
+                $("#div_caja .select2-selection").addClass("parsley-success");
+            }
+
+            if (val == 0) {
+                return true;
+            } else {
+                return false;
+            }
         },
 
         validarSCFactura() {
@@ -1570,6 +1622,7 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     if (data.status) {
+                        var ls = JSON.parse(data.value).data[0];
                         Swal.fire({
                             icon: 'success',
                             title: 'Éxito',
@@ -1577,6 +1630,7 @@ $(document).ready(function () {
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 $('#mSustentosCaja').modal('hide');
+                                dsh.SendMail(ls.userMail);
                                 dsh.ListRendiciones();
                                 $('#spinner_loading').hide();
                             }
@@ -1676,15 +1730,28 @@ $(document).ready(function () {
                     //console.log(data.value);
 
                     var ls = JSON.parse(data.value).data;
-                    $("#sCaja").picker('destroy');
+                    //$("#sCaja").picker('destroy');
                     $("#sCaja").find('option').remove();
                     for (var i = 0; i < ls.length; i++) {
                         $("#sCaja").append("<option value='" + ls[i].id + "'> " + ls[i].descripcion + " | " + dsh.soles(ls[i].monto) + " </option>");
                     }
-                    $('#sCaja').picker({
-                        search: true,
-                        texts: { trigger: "-- Seleccione Caja --", noResult: "No se encuentró", search: "Buscar" }
+
+                    //$('#sCaja').select2();
+                    $("#sCaja").select2({
+                        placeholder: "Selecciona Caja",
+                        closeOnSelect: true,
+                        dropdownParent: $('#mNuevo')
                     });
+                    $('#sCaja').css('width', '');
+                    $('#sCaja').val('').change();
+
+                    //$('#sCaja').picker({
+                    //    search: true,
+                    //    texts: { trigger: "-- Seleccione Caja --", noResult: "No se encuentró", search: "Buscar" }
+                    //});
+
+                    //$('#sCaja').selectpicker();
+
                     //jSuites.dropdown(document.getElementById('sCaja'));
                 },
                 error: function () {

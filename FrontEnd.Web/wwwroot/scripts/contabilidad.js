@@ -753,6 +753,9 @@ $(document).ready(function () {
             if (estado == 3) {
                 text = 'aprobó';
             }
+            if (estado == 5) {
+                text = 'aprobó';
+            }
 
             $.ajax({
                 cache: false,
